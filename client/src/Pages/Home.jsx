@@ -53,7 +53,7 @@ const Home = () => {
           <div className="flex gap-5 mt-5">
             <motion.button
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-             className="bg-[#ff6e4a] text-white font-bold px-5 py-3 rounded-lg" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+             className="bg-[#ff6e4a] text-white font-bold px-5 py-3 rounded-lg">
               See All
             </motion.button>
           </div>
