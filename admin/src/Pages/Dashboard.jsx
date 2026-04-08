@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Home,
   PlusCircle,
+  Utensils ,
   ShoppingBag,
   Users,
   BarChart3,
@@ -16,6 +17,7 @@ import {
 } from "lucide-react";
 
 import Addfood from "./Addfood";
+import ListFood from "./Listfood";
 
 export default function Dashboard() {
   const [page, setPage] = useState("dashboard");
@@ -41,6 +43,13 @@ export default function Dashboard() {
             onClick={() => setPage("add food")}
           />
 
+          <SidebarItem
+            icon={<Utensils  size={18} />}
+            label="Food List"
+            active={page === "food list"}
+            onClick={() => setPage("food list")}
+          />
+
           <SidebarItem icon={<ShoppingBag size={18} />} label="Orders" />
           <SidebarItem icon={<Users size={18} />} label="Customers" />
           <SidebarItem icon={<BarChart3 size={18} />} label="Analytics" />
@@ -60,24 +69,25 @@ export default function Dashboard() {
         {/* Header */}
         <header className="bg-white shadow-sm p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Menu className="md:hidden" />
-            <h2 className="text-xl font-semibold text-gray-700 capitalize">
-              {page}
-            </h2>
+            <Menu className="md:hidden" onClick={() => setSidebarOpen(true)} />
+            <h2 className="text-xl font-semibold capitalize">{page}</h2>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Search
+            
+            {/* Show search only on dashboard */}
+            {page === "dashboard" && (
+              <div className="relative hidden md:block">
+                <Search
                 className="absolute left-3 top-2.5 text-gray-400"
                 size={16}
               />
-              <input
-                className="pl-9 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-                placeholder="Search here..."
-              />
-            </div>
-
+                <input
+                  className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  placeholder="Search here..."
+                />
+              </div>
+            )}
             <Bell className="text-gray-600" />
             <div className="w-9 h-9 rounded-full bg-gradient-to-r from-orange-500 to-red-500" />
           </div>
@@ -87,6 +97,7 @@ export default function Dashboard() {
         <main className="p-6 space-y-6">
           {page === "dashboard" && <DashboardHome />}
           {page === "add food" && <Addfood />}
+          {page === "food list" && <ListFood />}
         </main>
       </div>
     </div>
