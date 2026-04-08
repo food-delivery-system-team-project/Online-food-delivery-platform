@@ -4,27 +4,58 @@ import { useNavigate } from "react-router-dom";
 const Admin_login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // 👈 important
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(email, password);
 
-    // login success → dashboard open
-    navigate("/dashboard");
+    try {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:8000/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      if (res.ok) {
+        // save token (optional)
+        localStorage.setItem("admin", JSON.stringify(data));
+
+        // redirect
+        navigate("/dashboard");
+      } else {
+        alert(data.message || "Login failed");
+      }
+
+    } catch (error) {
+      console.log(error);
+      alert("Server error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200">
       <div className="bg-orange-100 p-8 rounded-2xl shadow-lg shadow-red-300 w-[350px] border-2 border-red-500">
-        
+
         <h2 className="text-2xl font-bold text-center mb-6">
           Admin login
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           <div>
             <label className="block text-sm font-medium mb-1">
               Email
@@ -32,7 +63,7 @@ const Admin_login = () => {
             <input
               type="email"
               placeholder="example@gmail.com"
-              className="w-full border border-orange-500 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full border border-orange-500 px-3 py-2 rounded-lg"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -45,7 +76,7 @@ const Admin_login = () => {
             <input
               type="password"
               placeholder="Enter password"
-              className="w-full border border-orange-500 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full border border-orange-500 px-3 py-2 rounded-lg"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -53,19 +84,12 @@ const Admin_login = () => {
 
           <button
             type="submit"
-            className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-700 transition"
+            className="w-full bg-red-500 text-white py-2 rounded-lg"
           >
-            Sign In
+            {loading ? "Signing in..." : "Sign In"}
           </button>
+
         </form>
-
-        <p className="text-center text-sm mt-4">
-          Don't have an account?{" "}
-          <span className="text-red-500 cursor-pointer hover:underline">
-            Register
-          </span>
-        </p>
-
       </div>
     </div>
   );
