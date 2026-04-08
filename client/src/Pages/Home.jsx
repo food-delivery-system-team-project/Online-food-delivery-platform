@@ -21,6 +21,8 @@ const Home = () => {
   return (
     <>
     <div className='h-screen w-full bg-[#ff6e4a] overflow-hidden relative'>
+
+      {/* text content  */}
       <div className="h-200 w-200 absolute top-75 left-30" >
       <img className="absolute top-50 left-0 w-40 h-50" src="./src/Images/home-bag-logo.png" alt="" />
       <h1 className="absolute text-8xl top-0 font-bold text-white">Delicious Food, Delivered Fast</h1>
@@ -29,6 +31,8 @@ const Home = () => {
         Order Now
       </motion.button>
       </div>
+
+      {/* rotating images */}
     <motion.div className="image top-100 right-[-400px]"
       animate={{ rotate: 360 }}
       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
@@ -42,6 +46,8 @@ const Home = () => {
           </div>
         ))}
       </motion.div>
+
+      {/* food section */}
       <div className="h-20 w-full bottom-0 flex justify-center items-center absolute z-10">
         <motion.div
         whileHover={{
@@ -61,6 +67,7 @@ const Home = () => {
       </div>
     </div>
     
+    {/* 2nd page */}
     <div className="h-screen w-full bg-white overflow-hidden relative">
 
     </div>

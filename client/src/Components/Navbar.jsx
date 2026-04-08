@@ -4,8 +4,16 @@ import { BsBasket3 } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
 import { PiClipboardText } from "react-icons/pi";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import FavourateCard from "./NavComp/FavourateCard";
 
 const Navbar = () => {
+const [like, setLike] = useState(false)
+
+const handleLike = () => {
+  setLike(!like)
+}
+
   return (
     <> 
     <div className='h-20 w-full absolute z-10 flex items-center justify-between px-10'>
@@ -43,9 +51,18 @@ const Navbar = () => {
       {/* like code */}
 
       <div>
-        <span className="bg-white/80 top-10 right-72  p-2 rounded-2xl text-sm font-bold absolute">Favorites</span>
-        <button className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
+        <button onClick={handleLike} className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
       </div>
+      {like? (
+        <span className="bg-[#f7f7f7]/97 p-5 flex flex-col gap-2 top-20 right-25 overflow-auto rounded-2xl p-2 h-100 w-80 text-sm font-bold absolute">
+        <FavourateCard/>
+        <FavourateCard/>
+        <FavourateCard/>
+        <FavourateCard/>
+        <FavourateCard/>
+        <FavourateCard/>
+        </span>
+      ) : null}
 
       {/* cart code */}
       <div className="px-3 py-3 flex items-center gap-2 rounded-full bg-white/60 flex items-center justify-center">
