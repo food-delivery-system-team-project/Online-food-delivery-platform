@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 //if user are register
 const registerUser = async (req,res)=>{
  try {
-   const {name, email, password} = req.body;
+   const {name, email, password,role} = req.body;
    
    //check user is already exist
    const userExist = await User.findOne({email});
@@ -47,13 +47,13 @@ const userLogin = async (req,res)=>{
     const token = jwt.sign(
         {id: user._id},
         process.env.JWT_SECRET,
-        {expiresIn: JWT_EXPIRE}
+        {expiresIn: process.env.JWT_EXPIRE}
     );
 
     res.json({
         message: "login succesfully",
         token,
-        usr
+        user
     });
     } catch (error) {
         res.status(500).json({message: error.message});
