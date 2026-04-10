@@ -71,6 +71,11 @@ const Home = () => {
     <div className="h-screen w-full bg-white overflow-hidden relative">
 
     </div>
+
+    {/* 3rd page */}
+    <div className="h-screen w-full bg-[#ff6e4a] overflow-hidden relative">
+
+    </div>
     </>
   )
 }
