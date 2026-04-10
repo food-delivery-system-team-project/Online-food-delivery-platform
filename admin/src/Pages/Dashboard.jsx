@@ -20,6 +20,7 @@ import {
 import Orders from "./Orders";
 import Addfood from "./Addfood";
 import ListFood from "./ListFood";
+import Customers from "./Customers";
 
 export default function Dashboard() {
   const [page, setPage] = useState("dashboard");
@@ -27,7 +28,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-orange-500 to-red-600 text-white p-5 hidden md:block">
+      <aside className="relative w-64 bg-gradient-to-b from-orange-500 to-red-600 text-white p-5 hidden md:block">
         <h1 className="text-2xl font-bold mb-8">Food Admin</h1>
 
         <nav className="space-y-3">
@@ -59,7 +60,13 @@ export default function Dashboard() {
             onClick={() => setPage("orders")}
           />
 
-          <SidebarItem icon={<Users size={18} />} label="Customers" />
+          <SidebarItem
+            icon={<Users size={18} />}
+            label="Customers"
+            active={page === "customers"}
+            onClick={() => setPage("customers")}
+          />
+
           <SidebarItem icon={<BarChart3 size={18} />} label="Analytics" />
           <SidebarItem icon={<Star size={18} />} label="Reviews" />
           <SidebarItem icon={<Settings size={18} />} label="Settings" />
@@ -82,7 +89,6 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-4">
-            
             {page === "dashboard" && (
               <div className="relative hidden md:block">
                 <Search
@@ -107,6 +113,7 @@ export default function Dashboard() {
           {page === "add food" && <Addfood />}
           {page === "food list" && <ListFood />}
           {page === "orders" && <Orders />}
+          {page === "customers" && <Customers />}
         </main>
       </div>
     </div>
