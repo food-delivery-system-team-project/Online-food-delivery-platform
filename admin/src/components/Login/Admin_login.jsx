@@ -14,7 +14,7 @@ const Admin_login = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/users", {
+      const res = await fetch("http://localhost:8000/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
