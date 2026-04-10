@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes')
 const cartRoutes = require('./routes/cartRoutes');
+const adminDbRoutes = require('./routes/adminDbRoutes')
 
 const app = express();
 
@@ -21,7 +22,8 @@ app.use("/api/foods",foodRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/orders" , orderRoutes)
 app.use("/api/admin" , adminRoutes);
-app.use("/api/cart" , cartRoutes)
+app.use("/api/cart" , cartRoutes);
+app.use("/api/adminDb",adminDbRoutes)
 
 app.get('/',(req , res)=>{
  res.send("app is running");
