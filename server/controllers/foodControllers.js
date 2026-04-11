@@ -1,4 +1,4 @@
-const food = require('../models/food')
+const Food = require('../models/Food')
 
 //Get all food
 const getFoods = async (req, res) => {
@@ -20,12 +20,12 @@ const getFoods = async (req, res) => {
     if (sort === "low") sortOption.price = 1;
     if (sort === "high") sortOption.price = -1;
 
-    const foods = await food.find(query)
+    const foods = await Food.find(query)
       .sort(sortOption)
       .skip((page - 1) * limit)
       .limit(Number(limit));
 
-    const total = await food.countDocuments(query);
+    const total = await Food.countDocuments(query);
 
     res.json({
       total,
@@ -43,13 +43,13 @@ const getFoods = async (req, res) => {
 const addFood = async (req,res)=>{
    try {
     const {name,price,image,category} = req.body;
-    const Food = new food({
+    const food = new Food({
         name,
         price,
         image,
         category
     });
-    const saveFood = await Food.save();
+    const saveFood = await food.save();
     res.status(201).json(saveFood);
    } catch (error) {
     res.status(500).json({message:error.message})

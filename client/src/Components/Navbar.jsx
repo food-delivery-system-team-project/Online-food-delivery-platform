@@ -3,6 +3,17 @@ import { CgProfile } from "react-icons/cg";
 import { BsBasket3 } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
 import { PiClipboardText } from "react-icons/pi";
+<<<<<<< HEAD
+
+const Navbar = () => {
+  return (
+    <> 
+    <div className='h-20 w-screen bg-amber-500/60 flex items-center justify-between px-10'>
+
+      {/* logo */}
+      <div className="">
+        <img className="h-20 w-40" src="./src/Images/Logo.png" alt="Logo" srcset="" />
+=======
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import FavourateCard from "./NavComp/FavourateCard";
@@ -37,6 +48,7 @@ const handleLike = () => {
             <a href="http://">About</a>
           </li>
         </ul>
+>>>>>>> 9584b1e9e4658acd783b060756ce910000f779bb
       </div>
 
       {/* search bar */}
@@ -51,6 +63,14 @@ const handleLike = () => {
       {/* like code */}
 
       <div>
+<<<<<<< HEAD
+        <span className="bg-white/80 top-10 right-72  p-2 rounded-2xl text-sm font-bold absolute">Favorites</span>
+        <button className='px-3 py-3 rounded-full flex items-center gap-2 bg-amber-600/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
+      </div>
+
+      {/* cart code */}
+      <div className="px-3 py-3 flex items-center gap-2 rounded-full bg-amber-600/60 flex items-center justify-center">
+=======
         <button onClick={handleLike} className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
       </div>
       {like? (
@@ -66,6 +86,7 @@ const handleLike = () => {
 
       {/* cart code */}
       <div className="px-3 py-3 flex items-center gap-2 rounded-full bg-white/60 flex items-center justify-center">
+>>>>>>> 9584b1e9e4658acd783b060756ce910000f779bb
         <button className='text-white font-bold'><BsBasket3 className="text-2xl"/></button>
           <span className=" absolute top-9 ml-5 h-5 w-5 flex items-center justify-center text-black rounded-full bg-white/80 font-bold">0</span>      
       </div>  
@@ -73,6 +94,13 @@ const handleLike = () => {
       {/* orders  */}
 
       <div>
+<<<<<<< HEAD
+        <button className='flex items-center gap-2 bg-amber-600/60 text-white font-bold px-3 py-3 rounded-full'><PiClipboardText className="text-2xl" /></button>
+      </div>
+      {/* login button */}
+      <div>
+        <button className='flex items-center gap-2 bg-amber-600 text-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login</button>
+=======
         <button className='flex items-center gap-2 bg-white/60 text-white font-bold px-3 py-3 rounded-full'><PiClipboardText className="text-2xl" /></button>
       </div>
       {/* login button */}
@@ -80,6 +108,7 @@ const handleLike = () => {
         <Link to="/orders">
         <button className='flex items-center gap-2 bg-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login</button>
         </Link>
+>>>>>>> 9584b1e9e4658acd783b060756ce910000f779bb
       </div>
     </div>
     </div>

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Admin_login = () => {
+
+const  Admin_login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,7 +15,7 @@ const Admin_login = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/users", {
+      const res = await fetch("http://localhost:8000/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,6 +35,7 @@ const Admin_login = () => {
 
         // redirect
         navigate("/dashboard");
+        alert("user login success");
       } else {
         alert(data.message || "Login failed");
       }
