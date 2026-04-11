@@ -1,4 +1,5 @@
 const Food = require('../models/Food')
+const cloudinary = require("../config/cloudinary");
 
 //Get all food
 const getFoods = async (req, res) => {
@@ -40,21 +41,35 @@ const getFoods = async (req, res) => {
 };
 
 //Add food
-const addFood = async (req,res)=>{
-   try {
-    const {name,price,image,category} = req.body;
-    const food = new Food({
-        name,
-        price,
-        image,
-        category
-    });
-    const saveFood = await food.save();
-    res.status(201).json(saveFood);
-   } catch (error) {
-    res.status(500).json({message:error.message})
-   }
-}
 
+const addFood = async (req, res) => {
+  try {
+    
+    const { name, price, category } = req.body;
+
+    let image = "";
+
+    if (req.file) {
+      
+      const result = await cloudinary.uploader.upload(req.file.path);
+
+      image = result.secure_url;
+    }
+
+    const food = new Food({
+      name,
+      price,
+      category,
+      image
+    });
+
+    const savedFood = await food.save();
+
+    res.json(savedFood);
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 module.exports = {getFoods,addFood};
 
