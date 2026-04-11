@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import {
   Home,
   PlusCircle,
-  Utensils ,
+  Utensils,
+  ShoppingCart,
   ShoppingBag,
   Users,
   BarChart3,
@@ -16,8 +17,12 @@ import {
   ClipboardList
 } from "lucide-react";
 
+import Orders from "./Orders";
 import Addfood from "./Addfood";
-import ListFood from "./Listfood";
+import ListFood from "./ListFood";
+import Customers from "./Customers";
+import API from "../api";
+
 
 export default function Dashboard() {
   const [page, setPage] = useState("dashboard");
@@ -25,7 +30,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-orange-500 to-red-600 text-white p-5 hidden md:block">
+      <aside className="relative w-64 bg-gradient-to-b from-orange-500 to-red-600 text-white p-5 hidden md:block">
         <h1 className="text-2xl font-bold mb-8">Food Admin</h1>
 
         <nav className="space-y-3">
@@ -44,14 +49,26 @@ export default function Dashboard() {
           />
 
           <SidebarItem
-            icon={<Utensils  size={18} />}
+            icon={<Utensils size={18} />}
             label="Food List"
             active={page === "food list"}
             onClick={() => setPage("food list")}
           />
 
-          <SidebarItem icon={<ShoppingBag size={18} />} label="Orders" />
-          <SidebarItem icon={<Users size={18} />} label="Customers" />
+          <SidebarItem
+            icon={<ShoppingCart size={18} />}
+            label="Orders"
+            active={page === "orders"}
+            onClick={() => setPage("orders")}
+          />
+
+          <SidebarItem
+            icon={<Users size={18} />}
+            label="Customers"
+            active={page === "customers"}
+            onClick={() => setPage("customers")}
+          />
+
           <SidebarItem icon={<BarChart3 size={18} />} label="Analytics" />
           <SidebarItem icon={<Star size={18} />} label="Reviews" />
           <SidebarItem icon={<Settings size={18} />} label="Settings" />
@@ -69,25 +86,24 @@ export default function Dashboard() {
         {/* Header */}
         <header className="bg-white shadow-sm p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Menu className="md:hidden" onClick={() => setSidebarOpen(true)} />
+            <Menu className="md:hidden" />
             <h2 className="text-xl font-semibold capitalize">{page}</h2>
           </div>
 
           <div className="flex items-center gap-4">
-            
-            {/* Show search only on dashboard */}
             {page === "dashboard" && (
               <div className="relative hidden md:block">
                 <Search
-                className="absolute left-3 top-2.5 text-gray-400"
-                size={16}
-              />
+                  className="absolute left-3 top-2.5 text-gray-400"
+                  size={16}
+                />
                 <input
                   className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
                   placeholder="Search here..."
                 />
               </div>
             )}
+
             <Bell className="text-gray-600" />
             <div className="w-9 h-9 rounded-full bg-gradient-to-r from-orange-500 to-red-500" />
           </div>
@@ -98,6 +114,8 @@ export default function Dashboard() {
           {page === "dashboard" && <DashboardHome />}
           {page === "add food" && <Addfood />}
           {page === "food list" && <ListFood />}
+          {page === "orders" && <Orders />}
+          {page === "customers" && <Customers />}
         </main>
       </div>
     </div>
@@ -106,15 +124,52 @@ export default function Dashboard() {
 
 /* Dashboard Home */
 function DashboardHome() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  API.get("/api/adminDb/dashboard", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => setData(res.data))
+    .catch((err) => console.log(err));
+}, []);
+
+  if (!data) return <p>Loading...</p>;
+
   return (
     <>
+      {/* Stats */}
       <div className="grid md:grid-cols-4 gap-6">
-        <StatCard title="Total Orders" value="1,245" icon={<ShoppingBag />} />
-        <StatCard title="Revenue" value="₹89,245" icon={<DollarSign />} />
-        <StatCard title="Customers" value="845" icon={<Users />} />
-        <StatCard title="Pending" value="23" icon={<ClipboardList />} />
+        <StatCard
+          title="Total Orders"
+          value={data.totalOrders}
+          icon={<ShoppingBag />}
+        />
+
+        <StatCard
+          title="Revenue"
+          value={`₹${data.totalRevenue}`}
+          icon={<DollarSign />}
+        />
+
+        <StatCard
+          title="Customers"
+          value={data.totalUsers}
+          icon={<Users />}
+        />
+
+        <StatCard
+          title="Pending"
+          value={data.pendingOrders}
+          icon={<ClipboardList />}
+        />
       </div>
 
+      {/* Recent Orders */}
       <div className="bg-white rounded-2xl shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
 
@@ -123,16 +178,23 @@ function DashboardHome() {
             <tr className="text-left text-gray-500 border-b">
               <th className="pb-3">Order ID</th>
               <th className="pb-3">Customer</th>
-              <th className="pb-3">Item</th>
+              <th className="pb-3">Items</th>
               <th className="pb-3">Amount</th>
               <th className="pb-3">Status</th>
             </tr>
           </thead>
 
           <tbody>
-            <OrderRow id="#F245" name="Rahul" item="Burger" price="₹250" status="Delivered" />
-            <OrderRow id="#F246" name="Aman" item="Pizza" price="₹420" status="Pending" />
-            <OrderRow id="#F247" name="Priya" item="Pasta" price="₹310" status="Preparing" />
+            {data.recentOrders.map((order) => (
+              <OrderRow
+                key={order._id}
+                id={order._id.slice(-5)}
+                name={order.user.name}
+                item={order.items.map((i) => i.name).join(", ")}
+                price={`₹${order.totalAmount}`}
+                status={order.status}
+              />
+            ))}
           </tbody>
         </table>
       </div>
