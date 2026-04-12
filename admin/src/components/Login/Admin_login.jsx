@@ -35,7 +35,6 @@ const  Admin_login = () => {
       localStorage.setItem("admin", JSON.stringify(data.user));
 
       navigate("/dashboard");
-      alert("User login success");
     } else {
       alert(data.message || "Login failed");
     }
