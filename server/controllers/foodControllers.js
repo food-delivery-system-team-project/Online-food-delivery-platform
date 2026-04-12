@@ -45,7 +45,7 @@ const getFoods = async (req, res) => {
 const addFood = async (req, res) => {
   try {
     
-    const { name, price, category } = req.body;
+    const { name, price, category,isSaved,storeName,rating,totalRating,prepTime } = req.body;
 
     let image = "";
 
@@ -60,7 +60,12 @@ const addFood = async (req, res) => {
       name,
       price,
       category,
-      image
+      image,
+      isSaved,
+      rating,
+      totalRating,
+      storeName,
+      prepTime
     });
 
     const savedFood = await food.save();

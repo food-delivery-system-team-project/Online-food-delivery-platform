@@ -9,13 +9,18 @@ const orderSchema = new mongoose.Schema({
         {
             name:String,
             price:Number,
-            quntity:Number
+            quantity:Number
         }
     ],
-    totalAmount: Number,
+    totalAmount:{
+       type:Number
+    },
     status:{
         type:String,
         default: "pending"
+    },
+    location:{
+        type: String,   
     }
 
 },{timestamps:true});
