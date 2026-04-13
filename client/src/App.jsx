@@ -5,13 +5,6 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
 import CustomCursor from "./Components/CustomCursor";
 import ProtectedRoute from "./ProtectedRoute";
-import Orders from "./Pages/Orders";
-import Likes from "./Pages/Likes";
-import Cart from "./Pages/Cart";  
-import FoodList from "./Pages/FoodList";
-import Contact from "./Pages/Contact";
-import Register from "./Auth/Register";
-import Login from "./Auth/Login";
 
 const App = () => {
   return (
