@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import FavouriteCard from "./NavComp/FavouriteCard";
 
+
 const Navbar = () => {
 const [like, setLike] = useState(false)
 
@@ -43,17 +44,17 @@ const handleLike = () => {
             <a href="/">Home</a>
           </li>
           <li>
-            <a href="http://">Menu</a>
+            <a href="/explore">Explore</a>
           </li>
           <li>
-            <a href="http://">About</a>
+            <a href="/help">Help!</a>
           </li>
         </ul>
       </div>
        {/* login button */}
       <div>
-        <Link to="/login">
-        <button className='flex items-center gap-2 bg-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login/Register</button>
+        <Link to={"./register"}>
+        <button className='flex items-center gap-2 z-40 absolute top-10 right-10 bg-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login/Register</button>
         </Link>
       </div>
       </div>
