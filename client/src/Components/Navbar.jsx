@@ -97,11 +97,6 @@ const handleLike = () => {
         <button className='flex items-center gap-2 bg-white/60 text-white font-bold px-3 py-3 rounded-full'><PiClipboardText className="text-2xl" /></button>
       </div>
       {/* login button */}
-      <div>
-        <Link to="/orders">
-        <button className='flex items-center gap-2 bg-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login</button>
-        </Link>
-      </div>
     </div>
       </div>
 
