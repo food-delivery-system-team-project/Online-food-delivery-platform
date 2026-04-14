@@ -1,9 +1,50 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { Link } from "react-router-dom";
+import API from "../api/fetchApi"
+import { useNavigate } from "react-router-dom";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../Auth/firebase";
 
 
 const Login = () => {
+
+  // googel login code
+  const handleGoogleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    console.log(user);
+
+    // save token + user
+    localStorage.setItem("token", user.accessToken);
+
+    localStorage.setItem("user", JSON.stringify({
+      name: user.displayName,
+      email: user.email,
+      role: "user" // default role
+    }));
+
+    // send to backend
+    await API.post("/users/login", {
+      name: user.displayName,
+      email: user.email,
+    });
+
+    // redirect
+    navigate("/");
+
+  } catch (error) {
+    console.log(error);
+    alert("Google login failed");
+  }
+};
+
+
+  const navigate = useNavigate();
+  
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -16,12 +57,33 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = API.get("users/login")
+    try{
 
-    console.log(formData); // send to backend
+      const res = await API.post("users/login",formData)
+  
+      console.log(res.data); // send to backend
+  
+      // token saving in localstorage
+      localStorage.setItem("token", res.data.token);
+
+      // user basic detail save 
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+  
+      // redirecting
+  
+      if (res.data.user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    }
+    catch(err){
+       console.log(err);
+    alert("Login failed");
+    }
   };
 
   return (
@@ -37,6 +99,7 @@ const Login = () => {
         {/* Google Login */}
         <button
           type="button"
+          onClick={handleGoogleLogin}
           className="px-2 py-4 rounded-2xl bg-gray-100 flex items-center justify-center"
         >
           <FcGoogle className="text-2xl mr-2" />

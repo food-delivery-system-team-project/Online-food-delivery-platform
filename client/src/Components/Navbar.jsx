@@ -1,11 +1,10 @@
 import { CiSearch } from "react-icons/ci";
-import { CgProfile } from "react-icons/cg";
+import { IoMdLogIn } from "react-icons/io";
 import { BsBasket3 } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
 import { PiClipboardText } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import FavouriteCard from "./NavComp/FavouriteCard";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuery ,setFoods ,toggleSearch } from "../Features/searchSlice";
 import { useEffect } from "react";
@@ -31,19 +30,6 @@ useEffect(() => {
 
   fetchFoods();
 }, []);
-
-
-
-
-const favourites = [
-  { id: 1, name: "Pizza", image: "https://imgs.search.brave.com/h7YJUOM90Z-XtuhdIeCHriOymMFgTFjg-ufgoYniyIo/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuZnJlZWltYWdl/cy5jb20vdmFyaWFu/dHMvZExIOTZaeHBq/WmJndHdMdlhWTnl0/dnJMLzYyNGYwZGMx/ZGZmOWJkY2NhYjAz/MmY5M2MzM2U3OWRl/Nzg0ODE3NzBlNzll/MjFkM2IwNDY5ZGFm/NTFmMDI3OTc",
-    prize: 10.99
-   },
-  { id: 2, name: "Burger", image: "https://imgs.search.brave.com/0Oo-VwzdrkX65-_BHkUdo-JJgv1-47cjuGqki12J5NE/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzhkLzk4/LzNiLzhkOTgzYjBi/NDI1ZDRjYmNhNGFl/NTUwNmM3NDEwNWMw/LmpwZw",
-    prize: 8.99
-   },
-  { id: 3, name: "Momos", image: "https://imgs.search.brave.com/PTe9K5tGF13cXbNaWGr0nf1tfDmytqjVE1V2-7X6BCY/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9zdGF0/aWMudmVjdGVlenku/Y29tL3N5c3RlbS9y/ZXNvdXJjZXMvdGh1/bWJuYWlscy8wMjYv/NTk3LzgzNS9zbWFs/bC9hLWRlbGljaW91/cy1jaGlja2VuLXNv/dXAtZm9vZC13aXRo/LXZlZ2V0YWJsZXMt/aW4tYS1ib3dsLXdp/bnRlci1mb29kLWFu/ZC1oaWdoLXByb3Rl/aW4tc291cC1tZWFs/LWNvbmNlcHQtYnkt/YWktZ2VuZXJhdGVk/LWZyZWUtcGhvdG8u/anBn", prize: 6.99 }
-];
 
 const handleLike = () => {
   setLike(!like)
@@ -77,8 +63,8 @@ const handleLike = () => {
       </div>
        {/* login button */}
       <div>
-        <Link to={"./register"}>
-        <button className='flex items-center gap-2 z-40 absolute top-10 right-10 bg-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login/Register</button>
+        <Link to={"/login"}>
+        <button className='flex items-center gap-2 z-40 absolute text-[#ff6e4a] top-10 right-10 bg-white font-bold px-4 py-3 rounded-full'>Login<IoMdLogIn className="text-2xl text-[#ff6e4a]" /></button>
         </Link>
       </div>
       </div>

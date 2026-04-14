@@ -12,6 +12,7 @@ import Cart from "./Pages/Cart";
 import FoodList from "./Pages/FoodList";
 import Login from "./Auth/Login"
 import Register from "./Auth/Register";
+import FoodDetailCard from "./Components/Card/FoodDetailCard";
 
 
 
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/orders" element={<ProtectedRoute><Orders/></ProtectedRoute>} /> 
         <Route path="/likes" element={<Likes/>} />
         <Route path="/cart" element={<ProtectedRoute><Cart/></ProtectedRoute>} />
+        <Route path="/foodDetails" element={<ProtectedRoute><FoodDetailCard/></ProtectedRoute>} />
         <Route path="/explore" element={<FoodList/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>}/>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { use } from 'react'
 import { FaRegClock } from "react-icons/fa6";
 import { GoHeart } from "react-icons/go";
 import { useSelector ,useDispatch } from 'react-redux';
@@ -6,16 +6,22 @@ import { toggleLike } from '../../Features/likeSlice';
 import { GoHeartFill } from "react-icons/go";
 import { FaStore } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6";
+import { useNavigate } from 'react-router-dom';
 
 const FoodCard = ({food}) => {
-  const isLiked = useSelector((state) => state.Like.isLiked);
+  const navigate = useNavigate();
+  const LikedItems = useSelector((state) => state.Like.likedItems);
+  const isLiked = LikedItems.includes(food._id);
   const dispatch = useDispatch();
 
   const handleLike = () => {
-    dispatch(toggleLike());
+    dispatch(toggleLike(food._id));
+    console.log(isLiked)
   };
   return (
-    <div>
+    <div onClick={()=>{
+      navigate("/foodDetails")
+    }} className=' cursor-pointer'>
         <div className='h-60 w-70 bg-white flex flex-col relative items-center rounded-3xl'>
 
           {/* top section */}
@@ -34,7 +40,7 @@ const FoodCard = ({food}) => {
             {/* save section */}
             <div className='absolute right-2 top-2'>
               <button onClick={handleLike} className='bg-[#ffe5de]/80 text-white p-2 rounded-full flex items-center justify-center gap-1'>
-              {food.isSaved ? <GoHeartFill className='text-[#ff6e47] text-2xl' /> : <GoHeart className='text-2xl text-[#ff6e47]' />}
+              {isLiked ? <GoHeartFill className='text-[#ff6e47] text-2xl' /> : <GoHeart className='text-2xl text-[#ff6e47]' />}
               </button>
             </div>
 
