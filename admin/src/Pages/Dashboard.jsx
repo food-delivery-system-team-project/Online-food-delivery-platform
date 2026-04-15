@@ -21,6 +21,7 @@ import Orders from "./Orders";
 import Addfood from "./Addfood";
 import ListFood from "./ListFood";
 import Customers from "./Customers";
+import OrderDetails from "./OrderDetails";
 
 export default function Dashboard() {
   const [page, setPage] = useState("dashboard");
@@ -58,6 +59,13 @@ export default function Dashboard() {
             label="Orders"
             active={page === "orders"}
             onClick={() => setPage("orders")}
+          />
+
+          <SidebarItem
+            icon={<ClipboardList size={18} />}
+            label="Order Details"
+            active={page === "order details"}
+            onClick={() => setPage("order details")}
           />
 
           <SidebarItem
@@ -114,6 +122,7 @@ export default function Dashboard() {
           {page === "food list" && <ListFood />}
           {page === "orders" && <Orders />}
           {page === "customers" && <Customers />}
+          {page === "order details" && <OrderDetails />}
         </main>
       </div>
     </div>
