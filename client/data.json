@@ -1,0 +1,222 @@
+[
+  {
+    "id": 1,
+    "name": "Cheese Burger",
+    "prepTime": "25 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+    "storeName": "Burger Hub",
+    "rating": 4.5,
+    "totalRatings": 120,
+    "price": 8.99
+  },
+  {
+    "id": 2,
+    "name": "Margherita Pizza",
+    "prepTime": "30 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
+    "storeName": "Italiano Pizza",
+    "rating": 4.7,
+    "totalRatings": 210,
+    "price": 12.49
+  },
+  {
+    "id": 3,
+    "name": "Chicken Momos",
+    "prepTime": "20 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1625944195735-8c5f9e1f0f6e",
+    "storeName": "Momo Street",
+    "rating": 4.3,
+    "totalRatings": 95,
+    "price": 6.99
+  },
+  {
+    "id": 4,
+    "name": "Pasta Alfredo",
+    "prepTime": "35 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5",
+    "storeName": "Pasta Palace",
+    "rating": 4.6,
+    "totalRatings": 180,
+    "price": 10.99
+  },
+  {
+    "id": 5,
+    "name": "Paneer Tikka",
+    "prepTime": "28 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1601050690597-df0568f70950",
+    "storeName": "Spice Garden",
+    "rating": 4.4,
+    "totalRatings": 150,
+    "price": 9.49
+  },
+  {
+    "id": 6,
+    "name": "Chicken Biryani",
+    "prepTime": "40 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d",
+    "storeName": "Biryani House",
+    "rating": 4.8,
+    "totalRatings": 320,
+    "price": 13.99
+  },
+  {
+    "id": 7,
+    "name": "Veg Sandwich",
+    "prepTime": "15 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af",
+    "storeName": "Snack Corner",
+    "rating": 4.2,
+    "totalRatings": 80,
+    "price": 5.49
+  },
+  {
+    "id": 8,
+    "name": "Chocolate Cake",
+    "prepTime": "45 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1605478520508-7c3b1b2fbb17",
+    "storeName": "Sweet Treats",
+    "rating": 4.9,
+    "totalRatings": 410,
+    "price": 15.99
+  },
+  {
+    "id": 9,
+    "name": "French Fries",
+    "prepTime": "18 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1576107232684-1279f390859f",
+    "storeName": "Fry World",
+    "rating": 4.1,
+    "totalRatings": 60,
+    "price": 4.99
+  },
+  {
+    "id": 10,
+    "name": "Tandoori Chicken",
+    "prepTime": "38 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398",
+    "storeName": "Grill Master",
+    "rating": 4.7,
+    "totalRatings": 275,
+    "price": 14.49
+  },
+  {
+    "id": 11,
+    "name": "Veg Biryani",
+    "prepTime": "35 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1633945274405-b6c8069047b0",
+    "storeName": "Biryani Junction",
+    "rating": 4.3,
+    "totalRatings": 140,
+    "price": 11.49
+  },
+  {
+    "id": 12,
+    "name": "Masala Dosa",
+    "prepTime": "20 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976",
+    "storeName": "South Spice",
+    "rating": 4.6,
+    "totalRatings": 200,
+    "price": 7.99
+  },
+  {
+    "id": 13,
+    "name": "Chole Bhature",
+    "prepTime": "25 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1626132647523-66e7b4f6b31a",
+    "storeName": "Delhi Delight",
+    "rating": 4.5,
+    "totalRatings": 175,
+    "price": 8.49
+  },
+  {
+    "id": 14,
+    "name": "Spring Rolls",
+    "prepTime": "18 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1604908177522-4321dc9f5a9d",
+    "storeName": "Asian Bites",
+    "rating": 4.2,
+    "totalRatings": 90,
+    "price": 6.49
+  },
+  {
+    "id": 15,
+    "name": "Fried Rice",
+    "prepTime": "22 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1603133872878-684f208fb84b",
+    "storeName": "Wok Express",
+    "rating": 4.4,
+    "totalRatings": 130,
+    "price": 9.99
+  },
+  {
+    "id": 16,
+    "name": "Ice Cream Sundae",
+    "prepTime": "10 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb",
+    "storeName": "Cool Scoops",
+    "rating": 4.7,
+    "totalRatings": 220,
+    "price": 5.99
+  },
+  {
+    "id": 17,
+    "name": "Grilled Sandwich",
+    "prepTime": "15 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af",
+    "storeName": "Snack Stop",
+    "rating": 4.1,
+    "totalRatings": 75,
+    "price": 5.49
+  },
+  {
+    "id": 18,
+    "name": "Chicken Nuggets",
+    "prepTime": "18 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1606756790138-261d2b21cdcf",
+    "storeName": "Fast Bites",
+    "rating": 4.5,
+    "totalRatings": 160,
+    "price": 7.99
+  },
+  {
+    "id": 19,
+    "name": "Paneer Butter Masala",
+    "prepTime": "30 min",
+    "isSaved": true,
+    "image": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7",
+    "storeName": "Royal Kitchen",
+    "rating": 4.8,
+    "totalRatings": 300,
+    "price": 12.99
+  },
+  {
+    "id": 20,
+    "name": "Garlic Bread",
+    "prepTime": "12 min",
+    "isSaved": false,
+    "image": "https://images.unsplash.com/photo-1585238342024-78d387f4a707",
+    "storeName": "Bake House",
+    "rating": 4.3,
+    "totalRatings": 110,
+    "price": 4.99
+  }
+]
