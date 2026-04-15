@@ -23,7 +23,6 @@ const searchToggle = useSelector((state)=>state.search.value)
 useEffect(() => {
   const fetchFoods = async () => {
     const res = await API.get("/foods");
-     console.log(res.data.foods);
     dispatch(setFoods(res.data.foods));
     
   };

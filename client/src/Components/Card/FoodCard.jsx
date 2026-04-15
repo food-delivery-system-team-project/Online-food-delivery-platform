@@ -20,13 +20,13 @@ const FoodCard = ({food}) => {
   };
   return (
     <div onClick={()=>{
-      navigate("/foodDetails")
+      navigate(`/foodDetails/${food._id}`);
     }} className=' cursor-pointer'>
         <div className='h-60 w-70 bg-white flex flex-col relative items-center rounded-3xl'>
 
           {/* top section */}
-          <div className='bg-amber-300 h-1/2 w-full flex justify-center items-center overflow-hidden rounded-t-2xl' >
-              <img className="h-full w-full object-cover"  src={food.image} alt="" />
+          <div className='h-1/2 w-full flex justify-center items-center overflow-hidden rounded-t-2xl' >
+              <img className="h-full w-full object-cover"  src={food.image}  onError={(e) => {e.target.src = "./src/Images/Logo.png"; }}/>
           </div>
 
           {/* time section */}
