@@ -18,14 +18,17 @@ const searchSlice = createSlice({
 
     },
     setQuery: (state, action) => {
-      state.query = action.payload;
+  state.query = action.payload;
 
-      //  filter instantly
-      state.results = state.allFoods.filter((item) =>
-        item.name.toLowerCase().includes(action.payload.toLowerCase())
-      );
-      
-    },
+  if (!action.payload.trim()) {
+    state.results = [];
+    return;
+  }
+
+  state.results = state.allFoods.filter((item) =>
+    item.name.toLowerCase().includes(action.payload.toLowerCase())
+  );
+}
   }
 });
 
