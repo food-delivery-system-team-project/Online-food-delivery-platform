@@ -76,5 +76,45 @@ const addFood = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-module.exports = {getFoods,addFood};
+
+const addRating = async (req,res) => {
+try {
+  const {foodId,rating} = req.body;
+
+  const food = await Food.findById(foodId);
+
+  if(!food){
+    return res.status(404).json({message: "food not found"});
+  }
+
+  //check user alredy rated
+  const existingRating = food.ratings.find(
+    (r) => r.user.toString() === req.user.id
+  );
+
+  if(existingRating){
+    existingRating.value = rating;
+  }else{
+    food.ratings.push({
+      user: req.user.id,
+      value:rating
+    })
+  }
+
+  //calculate total rating
+  const total = food.ratings.reduse((sum,r)=> sum + r.value,0)
+  food.averageRating = total / food.ratings.length;
+
+  await food.save();
+
+  return res.json({
+    success: true,
+    averageRating: food.averageRating
+  })
+} catch (error) {
+  return res.status(500).json({message: error.message});
+}
+}
+
+module.exports = {getFoods,addFood,addRating};
 

@@ -14,11 +14,19 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    phone:{
+        type:Number,
+
+    },
+    address:{
+        type:String,
+    },
     role:{
         type: String,
         enum: ["user","admin"],
         default:"user"
-    }
+    },
+    
 },{timestamps: true});
 
 module.exports = mongoose.model("User",userSchema);
