@@ -64,7 +64,7 @@ export default function Orders() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto h-110">
         <table className="w-full text-sm">
           
           <thead>

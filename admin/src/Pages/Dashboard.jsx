@@ -22,9 +22,14 @@ import Addfood from "./Addfood";
 import ListFood from "./ListFood";
 import Customers from "./Customers";
 import OrderDetails from "./OrderDetails";
+import ManageFood from "./ManageFood";
 
 export default function Dashboard() {
+
   const [page, setPage] = useState("dashboard");
+  const [foodOpen, setFoodOpen] = useState(page === "add food" || page === "food list");
+  
+  const [ordersOpen, setOrdersOpen] = useState(page === "orders" || page === "order details");
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -40,33 +45,111 @@ export default function Dashboard() {
             onClick={() => setPage("dashboard")}
           />
 
-          <SidebarItem
-            icon={<PlusCircle size={18} />}
-            label="Add Food"
-            active={page === "add food"}
-            onClick={() => setPage("add food")}
-          />
+          <div>
+            {/* Parent */}
+            <div
+              onClick={() => setFoodOpen(!foodOpen)}
+              className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition ${
+                page === "add food" || page === "food list"
+                  ? "bg-white/20"
+                  : "hover:bg-white/10"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Utensils size={18} />
+                Food
+              </div>
 
-          <SidebarItem
-            icon={<Utensils size={18} />}
-            label="Food List"
-            active={page === "food list"}
-            onClick={() => setPage("food list")}
-          />
+              <span>{foodOpen ? "▲" : "▼"}</span>
+            </div>
 
-          <SidebarItem
-            icon={<ShoppingCart size={18} />}
-            label="Orders"
-            active={page === "orders"}
-            onClick={() => setPage("orders")}
-          />
+            {/* Dropdown */}
+            {foodOpen && (
+              <div className="ml-6 mt-2 space-y-2">
+                <div
+                  onClick={() => setPage("add food")}
+                  className={`p-2 rounded-lg cursor-pointer text-sm ${
+                    page === "add food"
+                      ? "bg-white/20"
+                      : "hover:bg-white/10"
+                  }`}
+                >
+                  -- Add
+                </div>
 
-          <SidebarItem
-            icon={<ClipboardList size={18} />}
-            label="Order Details"
-            active={page === "order details"}
-            onClick={() => setPage("order details")}
-          />
+                <div
+                  onClick={() => setPage("food list")}
+                  className={`p-2 rounded-lg cursor-pointer text-sm ${
+                    page === "food list"
+                      ? "bg-white/20"
+                      : "hover:bg-white/10"
+                  }`}
+                >
+                  -- List
+                </div>
+
+                <div
+                  onClick={() => setPage("manage food")}
+                  className={`p-2 rounded-lg cursor-pointer text-sm ${
+                    page === "manage food"
+                      ? "bg-white/20"
+                      : "hover:bg-white/10"
+                  }`}
+                >
+                  -- Add/Delete
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div>
+            {/* Parent */}
+            <div
+              onClick={() => setOrdersOpen(!ordersOpen)}
+              className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition ${
+                page === "orders" || page === "order details"
+                  ? "bg-white/20"
+                  : "hover:bg-white/10"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <ShoppingCart size={18} />
+                Orders
+              </div>
+
+              <span>{ordersOpen ? "▲" : "▼"}</span>
+            </div>
+
+            {/* Dropdown */}
+            {ordersOpen && (
+              <div className="ml-6 mt-2 space-y-2">
+                
+                {/* Status (Orders page) */}
+                <div
+                  onClick={() => setPage("orders")}
+                  className={`p-2 rounded-lg cursor-pointer text-sm ${
+                    page === "orders"
+                      ? "bg-white/20"
+                      : "hover:bg-white/10"
+                  }`}
+                >
+                  -- Status
+                </div>
+
+                {/* Details */}
+                <div
+                  onClick={() => setPage("order details")}
+                  className={`p-2 rounded-lg cursor-pointer text-sm ${
+                    page === "order details"
+                      ? "bg-white/20"
+                      : "hover:bg-white/10"
+                  }`}
+                >
+                  -- Details
+                </div>
+              </div>
+            )}
+          </div>
 
           <SidebarItem
             icon={<Users size={18} />}
@@ -120,8 +203,9 @@ export default function Dashboard() {
           {page === "dashboard" && <DashboardHome />}
           {page === "add food" && <Addfood />}
           {page === "food list" && <ListFood />}
-          {page === "orders" && <Orders />}
           {page === "customers" && <Customers />}
+          {page === "manage food" && <ManageFood />}
+          {page === "orders" && <Orders />}
           {page === "order details" && <OrderDetails />}
         </main>
       </div>
