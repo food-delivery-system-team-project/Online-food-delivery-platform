@@ -1,48 +1,97 @@
 import { CiSearch } from "react-icons/ci";
-import { CgProfile } from "react-icons/cg";
+import { IoMdLogIn } from "react-icons/io";
 import { BsBasket3 } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
 import { PiClipboardText } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import FavourateCard from "./NavComp/FavourateCard";
+import { useDispatch, useSelector } from "react-redux";
+import { setQuery ,setFoods ,toggleSearch } from "../Features/searchSlice";
+import { useEffect } from "react";
+import API from "../api/fetchApi";
+
 
 const Navbar = () => {
 const [like, setLike] = useState(false)
+
+
+const dispatch = useDispatch();
+const results = useSelector((state) => state.search.results);
+const searchToggle = useSelector((state)=>state.search.value)
+
+
+useEffect(() => {
+  const fetchFoods = async () => {
+    const res = await API.get("/foods");
+    dispatch(setFoods(res.data.foods));
+    
+  };
+
+  fetchFoods();
+}, []);
 
 const handleLike = () => {
   setLike(!like)
 }
 
+
   return (
     <> 
-    <div className='h-20 w-full absolute z-10 flex items-center justify-between px-10'>
-
+    <div className='h-40 w-full absolute z-10 flex flex-col items-center justify-between px-10'>
+{/* top div */}
+      <div className="h-20 w-full border-t-5 mt-2 border-white flex items-center justify-between">
       {/* logo */}
-      <div className="bg-white h-30 w-30 rounded-3xl flex items-center justify-center">
-        <span className="h-2 w-[100%] bg-white absolute top-0"></span>
-        <img className="h-10 w-25" src="./src/Images/Logo.png" alt="Logo" srcset="" />
+      <div className="bg-white h-20 w-20 absolute top-0 rounded-3xl flex items-center justify-center">
+        <span className="h-5 w-[100%] bg-white absolute top-0"></span>
+        <img className="h-6 w-15" src="./src/Images/Logo.png" alt="Logo"/>
       </div>
 
       {/* links */}
       <div>
-        <ul className=" flex gap-15 text-xl font-semibold text-white">
+        <ul className="flex gap-15 text-xl ml-50 font-semibold text-white">
           <li>
             <a href="/">Home</a>
           </li>
           <li>
-            <a href="http://">Menu</a>
+            <a href="/explore">Explore</a>
           </li>
           <li>
-            <a href="http://">About</a>
+            <a href="/help">Help!</a>
           </li>
         </ul>
       </div>
+       {/* login button */}
+      <div>
+        <Link to={"/login"}>
+        <button className='flex items-center gap-2 z-40 absolute text-[#ff6e4a] top-10 right-10 bg-white font-bold px-4 py-3 rounded-full'>Login<IoMdLogIn className="text-2xl text-[#ff6e4a]" /></button>
+        </Link>
+      </div>
+      </div>
 
-      {/* search bar */}
-      <div className='h-13 w-100 bg-white rounded-3xl p-3 flex items-center'> 
+      
+
+{/* bottom div */}
+      <div className="h-20 w-1/2 mt-20 absolute left-1/14 top-25 flex items-center justify-between">
+
+        {/* search bar */}
+
+      <div onClick={()=>dispatch(toggleSearch())} className='h-13 w-2/3 bg-white rounded-3xl p-3 flex items-center'> 
         <CiSearch className="text-3xl" />
-        <input className="ml-2 outline-0" type="search" placeholder="Search for restaurants..." />
+        <input onChange={(e) => dispatch(setQuery(e.target.value))} className="ml-2 h-full w-full outline-0" type="search" placeholder="Search for Foods..." />
+        {searchToggle ?
+  <div className="absolute top-20 w-100 bg-white shadow-lg rounded-lg p-2 max-h-60 overflow-y-auto">
+    {results.map((item) => (
+    <Link to='/explore'>
+      <div
+        key={item.id}
+        className="p-2 hover:bg-gray-100 cursor-pointer"
+      >
+        {item.name}
+      </div>
+      </Link>
+    ))}
+  </div> :null
+}
       </div>
 
       {/* buttons Container */}
@@ -51,38 +100,34 @@ const handleLike = () => {
       {/* like code */}
 
       <div>
+        <Link to="/likes">
         <button onClick={handleLike} className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
+        </Link>
       </div>
-      {like? (
-        <span className="bg-[#f7f7f7]/97 p-5 flex flex-col gap-2 top-20 right-25 overflow-auto rounded-2xl p-2 h-100 w-80 text-sm font-bold absolute">
-        <FavourateCard/>
-        <FavourateCard/>
-        <FavourateCard/>
-        <FavourateCard/>
-        <FavourateCard/>
-        <FavourateCard/>
-        </span>
-      ) : null}
 
       {/* cart code */}
+      <Link to="/cart">
       <div className="px-3 py-3 flex items-center gap-2 rounded-full bg-white/60 flex items-center justify-center">
         <button className='text-white font-bold'><BsBasket3 className="text-2xl"/></button>
           <span className=" absolute top-9 ml-5 h-5 w-5 flex items-center justify-center text-black rounded-full bg-white/80 font-bold">0</span>      
-      </div>  
+      </div> 
+      </Link>
+  
 
       {/* orders  */}
 
       <div>
+       <Link to="/orders">
         <button className='flex items-center gap-2 bg-white/60 text-white font-bold px-3 py-3 rounded-full'><PiClipboardText className="text-2xl" /></button>
+      </Link>
       </div>
-      {/* login button */}
-      <div>
-        <Link to="/orders">
-        <button className='flex items-center gap-2 bg-white font-bold px-4 py-2 rounded-lg'><CgProfile className="text-2xl" />Login</button>
-        </Link>
       </div>
+      </div>
+
+      
     </div>
-    </div>
+
+
             
     </>
   )

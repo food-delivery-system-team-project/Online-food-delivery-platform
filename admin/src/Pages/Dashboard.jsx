@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import {
   Home,
   PlusCircle,
@@ -22,6 +22,8 @@ import Addfood from "./Addfood";
 import ListFood from "./ListFood";
 import Customers from "./Customers";
 import OrderDetails from "./OrderDetails";
+import API from "../api";
+
 
 export default function Dashboard() {
   const [page, setPage] = useState("dashboard");
@@ -131,15 +133,52 @@ export default function Dashboard() {
 
 /* Dashboard Home */
 function DashboardHome() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  API.get("/api/adminDb/dashboard", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => setData(res.data))
+    .catch((err) => console.log(err));
+}, []);
+
+  if (!data) return <p>Loading...</p>;
+
   return (
     <>
+      {/* Stats */}
       <div className="grid md:grid-cols-4 gap-6">
-        <StatCard title="Total Orders" value="1,245" icon={<ShoppingBag />} />
-        <StatCard title="Revenue" value="₹89,245" icon={<DollarSign />} />
-        <StatCard title="Customers" value="845" icon={<Users />} />
-        <StatCard title="Pending" value="23" icon={<ClipboardList />} />
+        <StatCard
+          title="Total Orders"
+          value={data.totalOrders}
+          icon={<ShoppingBag />}
+        />
+
+        <StatCard
+          title="Revenue"
+          value={`₹${data.totalRevenue}`}
+          icon={<DollarSign />}
+        />
+
+        <StatCard
+          title="Customers"
+          value={data.totalUsers}
+          icon={<Users />}
+        />
+
+        <StatCard
+          title="Pending"
+          value={data.pendingOrders}
+          icon={<ClipboardList />}
+        />
       </div>
 
+      {/* Recent Orders */}
       <div className="bg-white rounded-2xl shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
 
@@ -148,16 +187,23 @@ function DashboardHome() {
             <tr className="text-left text-gray-500 border-b">
               <th className="pb-3">Order ID</th>
               <th className="pb-3">Customer</th>
-              <th className="pb-3">Item</th>
+              <th className="pb-3">Items</th>
               <th className="pb-3">Amount</th>
               <th className="pb-3">Status</th>
             </tr>
           </thead>
 
           <tbody>
-            <OrderRow id="#F245" name="Rahul" item="Burger" price="₹250" status="Delivered" />
-            <OrderRow id="#F246" name="Aman" item="Pizza" price="₹420" status="Pending" />
-            <OrderRow id="#F247" name="Priya" item="Pasta" price="₹310" status="Preparing" />
+            {data.recentOrders.map((order) => (
+              <OrderRow
+                key={order._id}
+                id={order._id.slice(-5)}
+                name={order.user.name}
+                item={order.items.map((i) => i.name).join(", ")}
+                price={`₹${order.totalAmount}`}
+                status={order.status}
+              />
+            ))}
           </tbody>
         </table>
       </div>

@@ -1,38 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MoreVertical } from "lucide-react";
-
-const ordersData = [
-  {
-    id: "#555231",
-    date: "26 March 2026, 12:42 AM",
-    customer: "Rahul Sharma",
-    order: "Burger",
-    location: "Raipur, Chhattisgarh",
-    amount: 164,
-    status: "New Order"
-  },
-  {
-    id: "#555232",
-    date: "26 March 2026, 11:42 AM",
-    customer: "Aman Verma",
-    order: "Veg Biryani",
-    location: "Bilaspur, CG",
-    amount: 184,
-    status: "On Delivery"
-  },
-  {
-    id: "#555233",
-    date: "26 March 2026, 10:22 AM",
-    customer: "Priya Singh",
-    order: "Pulao",
-    location: "Durg, CG",
-    amount: 364,
-    status: "Delivered"
-  }
-];
+import API from "../api";
 
 export default function Orders() {
+  const [orders,setOrders] = useState([])
   const [open, setOpen] = useState(null);
+
+  useEffect(() => {
+    fetchOrders(); 
+  }, [])
+
+  const fetchOrders = async () => {
+    try {
+      const res = await API.get('/api/admin/all')
+      setOrders(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const formatStatus = (status) =>{
+    if (status === "pending") return "New Order";
+    if (status === "onway") return "On Delivery";
+    if (status === "delivered") return "Delivered";
+    return status;
+  }
+
+  const updateStatus = async (id,status) =>{
+    try {
+      await API.put(`/api/admin/${id}`, {status});
+      fetchOrders();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border p-6">
@@ -81,23 +83,23 @@ export default function Orders() {
           </thead>
 
           <tbody>
-            {ordersData.map((order, index) => (
+            {orders.map((order, index) => (
               <tr key={index} className="border-b hover:bg-gray-50">
                 
                 <td className="py-4 px-4 font-medium">
-                  {order.id}
+                  {order._id.slice(-6)}
                 </td>
 
                 <td className="text-gray-500">
-                  {order.date}
+                  {new Date(order.createdAt).toLocaleString()}
                 </td>
 
                 <td className="font-medium">
-                  {order.customer}
+                  {order.user?.name}
                 </td>
 
                 <td className="font-medium">
-                  {order.order}
+                  {order.items.map((item)=> item.name).join(", ")}
                 </td>
 
                 <td className="text-gray-500">
@@ -105,11 +107,11 @@ export default function Orders() {
                 </td>
 
                 <td className="font-semibold">
-                  ${order.amount}.00
+                  ₹{order.totalAmount}
                 </td>
 
                 <td>
-                  <StatusBadge status={order.status} />
+                  <StatusBadge status={formatStatus(order.status)} />
                 </td>
 
                 <td className="relative">
@@ -124,11 +126,15 @@ export default function Orders() {
                   {open === index && (
                     <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-xl border z-10">
                       
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-50">
+                      <button 
+                        onClick={()=> updateStatus(order._id, "onway")}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-50">
                         Accept Order
                       </button>
 
-                      <button className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-red-500">
+                      <button 
+                        onClick={()=> updateStatus(order._id,"cancelled")}
+                        className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-red-500">
                         Reject Order
                       </button>
 
@@ -146,7 +152,7 @@ export default function Orders() {
       {/* Pagination */}
       <div className="flex justify-between items-center mt-6">
         <p className="text-sm text-gray-500">
-          Showing 1-3 from 12 data
+          Showing 1-{orders.length} orders
         </p>
 
         <div className="flex gap-2">

@@ -12,14 +12,38 @@ import img10 from "../Images/slides/6.png"
 import img11 from "../Images/slides/7.png"
 import img12 from "../Images/slides/4.png"
 import img13 from "../Images/slides/5.png"
+import Navbar from "../Components/Navbar"
+import Footer from "./Footer"
+import FoodCard from "../Components/Card/FoodCard"
+import API from "../api/fetchApi"
+import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+
 
 
 
 const Home = () => {
+  const [data, setData] = useState([])
+ const [loading, setLoading] = useState(true);
 
+useEffect(() => {
+  const fetchFoods = async () => {
+    try {
+      const res = await API.get("foods");
+      setData(res.data.foods);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchFoods();
+}, []);
 
   return (
     <>
+    <Navbar />
     <div className='h-screen w-full bg-[#ff6e4a] overflow-hidden relative'>
 
       {/* text content  */}
@@ -27,9 +51,11 @@ const Home = () => {
       <img className="absolute top-50 left-0 w-40 h-50" src="./src/Images/home-bag-logo.png" alt="" />
       <h1 className="absolute text-8xl top-0 font-bold text-white">Delicious Food, Delivered Fast</h1>
       <p className="absolute top-60 left-50 text-3xl text-white">Experience the joy of food delivery with us. Order now and savor the flavors!</p>
+      <Link to="/explore">
       <motion.button className="absolute top-85 left-50 bg-white text-[#ff6e4a] font-bold px-5 py-3 rounded-lg" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         Order Now
       </motion.button>
+      </Link>
       </div>
 
       {/* rotating images */}
@@ -57,20 +83,30 @@ const Home = () => {
          className="h-60 w-400 rounded-4xl bg-white/80 flex justify-between p-10 items-center">
           <h1 className="text-3xl font-bold text-center text-black/60 pt-5">Explore The Delicious Meal Here</h1>
           <div className="flex gap-5 mt-5">
+            <Link to="/explore">
             <motion.button
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
              className="bg-[#ff6e4a] text-white font-bold px-5 py-3 rounded-lg">
               See All
             </motion.button>
+            </Link>
           </div>
         </motion.div>
       </div>
     </div>
     
     {/* 2nd page */}
-    <div className="h-screen w-full bg-white overflow-hidden relative">
+    <div className="h-screen w-full bg-[#faf1ee] overflow-y-scroll flex-wrap flex gap-5 p-10 relative">
+      {loading ? (
+        <p>Loading...</p>) : (
+             data.map((items) => (
+                     <FoodCard key={items._id} food={items} />
+             ))
+           )}
 
     </div>
+
+    <Footer/>
     </>
   )
 }

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const Admin_login = () => {
+
+const  Admin_login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -9,42 +10,42 @@ const Admin_login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const res = await fetch("http://localhost:8000/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
+    const res = await fetch("http://localhost:8000/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
 
-      const data = await res.json();
-      console.log(data);
+    const data = await res.json(); 
+    
+    if (res.ok) {
 
-      if (res.ok) {
-        // save token (optional)
-        localStorage.setItem("admin", JSON.stringify(data));
+      localStorage.setItem("token", data.token);
 
-        // redirect
-        navigate("/dashboard");
-      } else {
-        alert(data.message || "Login failed");
-      }
+      localStorage.setItem("admin", JSON.stringify(data.user));
 
-    } catch (error) {
-      console.log(error);
-      alert("Server error");
-    } finally {
-      setLoading(false);
+      navigate("/dashboard");
+    } else {
+      alert(data.message || "Login failed");
     }
-  };
+
+  } catch (error) {
+    console.log(error);
+    alert("Server error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200">
