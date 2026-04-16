@@ -1,16 +1,64 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { Link } from "react-router-dom";
+import axios from "axios";
+import { IoLocationOutline } from "react-icons/io5";
+import API from "../api/fetchApi";
 
 const Register = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    phone: "",
-    address: "",
-    role: "buyer"
-  });
+
+  // form data
+  
+    const [formData, setFormData] = useState({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      phone: "",
+      address: "",
+      role: "buyer"
+    });
+
+
+  // direct loaction fetch api
+
+const getCurrentLocation = () => {
+
+  const OpenCageKey = import.meta.env.VITE_OPENCAGE_KEY;
+  if (!navigator.geolocation) {
+    alert("Geolocation not supported");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      try {
+        const res = await axios.get(
+          `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${OpenCageKey}`
+        );
+
+        const address = res.data.results[0].formatted;
+
+        setFormData({
+          ...formData,
+          address: address
+        });
+
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    (error) => {
+      alert("Location permission denied");
+    }
+  );
+};
+
+// two way binding 
+// post data to the server
 
   const handleChange = (e) => {
     setFormData({
@@ -19,15 +67,27 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+  if (formData.password !== formData.confirmPassword) {
+    alert("Passwords do not match");
+    return;
+  }
 
-  };
+  console.log(formData)
+
+  try {
+    const res = await API.post("/users/register", formData);
+
+    console.log(res.data);
+    alert("Registered successfully ✅");
+
+  } catch (error) {
+    console.log(error);
+    alert("Error registering user ❌");
+  }
+};
 
   return (
     <div className="h-screen flex justify-center items-center bg-gray-100">
@@ -46,8 +106,8 @@ const Register = () => {
     <input
       type="radio"
       name="role"
-      value="buyer"
-      checked={formData.role === "buyer"}
+      value="user"
+      checked={formData.role === "user"}
       onChange={handleChange}
     />
     Buyer
@@ -57,8 +117,8 @@ const Register = () => {
     <input
       type="radio"
       name="role"
-      value="seller"
-      checked={formData.role === "seller"}
+      value="admin"
+      checked={formData.role === "admin"}
       onChange={handleChange}
     />
     Seller
@@ -125,10 +185,26 @@ const Register = () => {
 
         <button
           type="submit"
-          className="bg-[#ff6e47] text-white py-2 rounded-2xl text-xl"
+          onClick={getCurrentLocation}
+          className=" text-[#ff6e4a] flex items-center justify-center py-0.5 rounded-2xl text-lg"
+        >
+          <IoLocationOutline />
+          Get Live Location
+        </button>
+
+
+        <button
+          type="submit"
+          className="bg-[#ff6e4a] text-white py-2 rounded-2xl text-xl"
         >
           Register
         </button>
+        <p className="text-center text-sm">
+  Already have an account?{" "}
+  <Link to="/login" className="text-[#ff6e4a] font-semibold">
+    Login
+  </Link>
+</p>
 
       </form>
     </div>
