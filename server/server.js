@@ -17,6 +17,7 @@ const authRoutes = require("./routes/authRoutes");
 
 const { initSocket } = require("./sockets/socket"); // 👈 make sure export is correct
 
+
 const app = express();
 
 connectDB();
@@ -43,6 +44,10 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/adminDb", adminDbRoutes);
+
+app.get('/',(req , res)=>{
+ res.send("app is running");
+})
 
 const PORT = process.env.PORT || 8000;
 

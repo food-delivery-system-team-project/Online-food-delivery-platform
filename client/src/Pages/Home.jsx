@@ -31,7 +31,6 @@ useEffect(() => {
     try {
       const res = await API.get("foods");
       setData(res.data.foods);
-      console.log(res)
     } catch (error) {
       console.log(error);
     } finally {
