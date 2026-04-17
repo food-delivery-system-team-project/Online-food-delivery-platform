@@ -1,4 +1,4 @@
-const Food = require('../models/Food')
+const Food = require("../models/Food");
 const cloudinary = require("../config/cloudinary");
 
 //Get all food
@@ -32,9 +32,8 @@ const getFoods = async (req, res) => {
       total,
       page: Number(page),
       pages: Math.ceil(total / limit),
-      foods
+      foods,
     });
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -44,13 +43,19 @@ const getFoods = async (req, res) => {
 
 const addFood = async (req, res) => {
   try {
-    
-    const { name, price, category,isSaved,storeName,rating,totalRating,prepTime } = req.body;
+    const {
+      name,
+      price,
+      category,
+      storeName,
+      ratings,
+      averageRating,
+      prepTime,
+    } = req.body;
 
     let image = "";
 
     if (req.file) {
-      
       const result = await cloudinary.uploader.upload(req.file.path);
 
       image = result.secure_url;
@@ -61,17 +66,15 @@ const addFood = async (req, res) => {
       price,
       category,
       image,
-      isSaved,
-      rating,
-      totalRating,
+      ratings,
+      averageRating,
       storeName,
-      prepTime
+      prepTime,
     });
 
     const savedFood = await food.save();
 
     res.json(savedFood);
-
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -118,3 +121,43 @@ try {
 
 module.exports = {getFoods,addFood,addRating};
 
+const addRating = async (req, res) => {
+  try {
+    const { foodId, rating } = req.body;
+
+    const food = await Food.findById(foodId);
+
+    if (!food) {
+      return res.status(404).json({ message: "food not found" });
+    }
+
+    //check user alredy rated
+    const existingRating = food.ratings.find(
+      (r) => r.user.toString() === req.user.id,
+    );
+
+    if (existingRating) {
+      existingRating.value = rating;
+    } else {
+      food.ratings.push({
+        user: req.user.id,
+        value: rating,
+      });
+    }
+
+    //calculate total rating
+    const total = food.ratings.reduse((sum, r) => sum + r.value, 0);
+    food.averageRating = total / food.ratings.length;
+
+    await food.save();
+
+    return res.json({
+      success: true,
+      averageRating: food.averageRating,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getFoods, addFood, addRating };

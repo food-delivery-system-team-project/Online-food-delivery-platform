@@ -52,18 +52,39 @@ const userLogin = async (req,res)=>{
     return res.status(400).json({message: "invalid password"});
     }
 
-    // Generate Token 
-    const token = generateToken(user._id);
+    const isMatch = await bcrypt.compare(currentpassword, user.password);
 
-    res.json({
-        message: "login succesfully",
-        token:token,
-        user
-    });
-    } catch (error) {
-        res.status(500).json({message: error.message});
+    if (!isMatch) {
+      return res.status(400).json({ message: "password is wrong" });
     }
 
-}
+    const isSamePassword = await bcrypt.compare(newpassword, user.password);
 
-module.exports = {registerUser , userLogin};
+    if (isSamePassword) {
+      return res.status(400).json({
+        message: "new password cannot be same as current password",
+      });
+    }
+
+    //generate new password
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(newpassword, salt);
+
+    user.password = hashPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  getUserProfile,
+  updateUserProfile,
+  changepassword,
+};
