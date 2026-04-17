@@ -93,7 +93,6 @@ export default function ListFood() {
               <th>Type</th>
               <th>Price</th>
               <th>Rating</th>
-              <th>Action</th>
             </tr>
           </thead>
 
@@ -122,16 +121,6 @@ export default function ListFood() {
                   <div className="flex items-center gap-1">
                     ⭐ {food.rating}
                   </div>
-                </td>
-
-                <td className="space-x-2">
-                  <button className="px-3 py-1 text-xs bg-orange-500 text-white rounded">
-                    Edit
-                  </button>
-
-                  <button className="px-3 py-1 text-xs bg-red-500 text-white rounded">
-                    Delete
-                  </button>
                 </td>
               </tr>
             ))}
