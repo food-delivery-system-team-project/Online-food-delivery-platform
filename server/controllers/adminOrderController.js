@@ -28,6 +28,14 @@ const updateOrderStatus = async (req, res) => {
     order.status = status;
     await order.save();
 
+    //send real time order status;
+    const io = req.app.get("io");
+
+    io.to(order.userId, toString()).emit("orderUpdated", {
+      ordeId: order._id,
+      status: order.status,
+    });
+    zzzz;
     res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });
