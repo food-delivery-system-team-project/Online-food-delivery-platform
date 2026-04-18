@@ -2,14 +2,16 @@ const express = require("express");
 const router = express.Router();
 const {
   registerUser,
+  verifyOTPAndRegister,
   userLogin,
   refreshToken,
   logout,
 } = require("../controllers/authControllers");
 const protect = require("../middleware/authMiddleware");
 
-router.post("/login", userLogin);
 router.post("/register", registerUser);
+router.post("/verify-otp", verifyOTPAndRegister);
+router.post("/login", userLogin);
 router.post("/refreshToken", refreshToken);
 router.post("/logout", protect, logout);
 

@@ -30,9 +30,19 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    refreshToken:{
-      type:String
-    }
+    refreshToken: {
+      type: String,
+    },
+    isVarified: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
+    },
+    otpExpire: {
+      type: Date,
+    },
   },
   { timestamps: true },
 );

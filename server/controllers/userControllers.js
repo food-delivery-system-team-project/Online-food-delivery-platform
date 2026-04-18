@@ -1,47 +1,55 @@
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const cloudinary = require("../config/cloudinary");
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
+const generateToken = require('../utils/generateToken')
 
-//get userDetail
-const getUserProfile = async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password");
+//if user are register
+const registerUser = async (req,res)=>{
+ try {
+   const {name, email, password,phone,address} = req.body;
+   
+   //check user is already exist
+   const userExist = await User.findOne({email});
+   if(userExist){
+    return res.status(400).json({message:"user already exists"})
+   }
 
-    res.json({ success: true, user });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
+   // password hashing
+   const salt = await bcrypt.genSalt(10);
+   const hashPassword = await bcrypt.hash(password,salt);
+
+   //create user
+   const user = await User.create({
+    name,
+    email,
+    password: hashPassword,
+    role: "user",
+    phone,
+    address
+   });
+
+   res.status(201).json({
+    message:"user register success",user
+   })
+ } catch (error) {
+    res.status(500).json({message: error.message});
+ }
 };
 
-const updateUserProfile = async (req, res) => {
-  try {
-    const { phone, address } = req.body;
-    let updateData = { phone, address };
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      updateData.profilePic = result.secure_url;
+//User Login
+const userLogin = async (req,res)=>{
+    try {
+        const {email,password} = req.body;
+
+    const user = await User.findOne({email});
+    if(!user){
+    return res.status(400).json({message: "user not found"});
     }
-    const user = await User.findByIdAndUpdate(req.user.id, updateData, {
-      new: true,
-    });
-    res.json({ success: true, user });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
+    //password matching
+    const isMatch = await bcrypt.compare(password,user.password);
 
-const changepassword = async (req, res) => {
-  try {
-    const { currentpassword, newpassword } = req.body;
-
-    if (!currentpassword || !newpassword) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const user = await User.findById(req.user.id);
-
-    if (!user) {
-      return res.status(404).json({ message: "user not found" });
+    if(!isMatch){
+    return res.status(400).json({message: "invalid password"});
     }
 
     const isMatch = await bcrypt.compare(currentpassword, user.password);
