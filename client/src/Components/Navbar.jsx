@@ -12,6 +12,15 @@ import API from "../api/fetchApi";
 
 
 const Navbar = () => {
+  // login user details
+
+   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+  }, []);
+
 const [like, setLike] = useState(false)
 
 
@@ -61,11 +70,24 @@ const handleLike = () => {
         </ul>
       </div>
        {/* login button */}
-      <div>
-        <Link to={"/login"}>
-        <button className='flex items-center gap-2 z-40 absolute text-[#ff6e4a] top-10 right-10 bg-white font-bold px-4 py-3 rounded-full'>Login<IoMdLogIn className="text-2xl text-[#ff6e4a]" /></button>
-        </Link>
-      </div>
+    {user ? (
+  <div className="absolute top-10 right-10 flex items-center gap-3">
+
+    <Link to="/profile">
+
+    <span className="text-white font-semibold">
+      Hi, {user.name}
+    </span>
+    </Link>
+
+  </div>
+) : (
+  <Link to="/login">
+    <button className='flex items-center gap-2 absolute top-10 right-10 bg-white text-[#ff6e4a] font-bold px-4 py-3 rounded-full'>
+      Login <IoMdLogIn className="text-2xl" />
+    </button>
+  </Link>
+)}
       </div>
 
       

@@ -13,13 +13,15 @@ import FoodList from "./Pages/FoodList";
 import Login from "./Auth/Login"
 import Register from "./Auth/Register";
 import FoodDetailCard from "./Components/Card/FoodDetailCard";
+import UserProfile from "./Pages/UserProfile";
+import BackBtn from "./Components/NavComp/BackBtn";
 
 
 
 const App = () => {
   return (
     <>
-      <CustomCursor/>
+    <BackBtn/>
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/help" element={<Contact/>} />
@@ -27,6 +29,7 @@ const App = () => {
         <Route path="/likes" element={<Likes/>} />
         <Route path="/cart" element={<ProtectedRoute><Cart/></ProtectedRoute>} />
         <Route path="/foodDetails/:id" element={<ProtectedRoute><FoodDetailCard/></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><UserProfile/></ProtectedRoute>}/>
         <Route path="/explore" element={<FoodList/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>}/>
