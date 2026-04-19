@@ -43,8 +43,22 @@ const userSchema = new mongoose.Schema(
     otpExpire: {
       type: Date,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true },
+);
+
+//auto delete only unvarified users
+//use ttl and with partial index
+userSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 2*24*60*60, // 2days
+    partialFilterExpression: { isVarified: false },
+  },
 );
 
 module.exports = mongoose.model("User", userSchema);

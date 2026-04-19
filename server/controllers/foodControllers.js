@@ -4,7 +4,9 @@ const cloudinary = require("../config/cloudinary");
 //Get all food
 const getFoods = async (req, res) => {
   try {
-    const { search, category, page = 1, limit = 5, sort } = req.query;
+   
+    let {limit = 5} = req.query;
+    const { search, category, page = 1, sort } = req.query;
 
     let query = {};
 
