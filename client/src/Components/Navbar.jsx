@@ -4,6 +4,7 @@ import { BsBasket3 } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
 import { PiClipboardText } from "react-icons/pi";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuery ,setFoods ,toggleSearch } from "../Features/searchSlice";
@@ -12,7 +13,17 @@ import API from "../api/fetchApi";
 
 
 const Navbar = () => {
-const [like, setLike] = useState(false)
+  const navigate = useNavigate();
+  // login user details
+
+   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(storedUser);
+  }, []);
+
+
 
 
 const dispatch = useDispatch();
@@ -30,9 +41,7 @@ useEffect(() => {
   fetchFoods();
 }, []);
 
-const handleLike = () => {
-  setLike(!like)
-}
+
 
 
   return (
@@ -61,11 +70,24 @@ const handleLike = () => {
         </ul>
       </div>
        {/* login button */}
-      <div>
-        <Link to={"/login"}>
-        <button className='flex items-center gap-2 z-40 absolute text-[#ff6e4a] top-10 right-10 bg-white font-bold px-4 py-3 rounded-full'>Login<IoMdLogIn className="text-2xl text-[#ff6e4a]" /></button>
-        </Link>
-      </div>
+    {user ? (
+  <div className="absolute top-10 right-10 flex items-center gap-3">
+
+    <Link to="/profile">
+
+    <span className="text-white font-semibold">
+      Hi, {user.name}
+    </span>
+    </Link>
+
+  </div>
+) : (
+  <Link to="/login">
+    <button className='flex items-center gap-2 absolute top-10 right-10 bg-white text-[#ff6e4a] font-bold px-4 py-3 rounded-full'>
+      Login <IoMdLogIn className="text-2xl" />
+    </button>
+  </Link>
+)}
       </div>
 
       
@@ -80,16 +102,20 @@ const handleLike = () => {
         <input onChange={(e) => dispatch(setQuery(e.target.value))} className="ml-2 h-full w-full outline-0" type="search" placeholder="Search for Foods..." />
         {searchToggle ?
   <div className="absolute top-20 w-100 bg-white shadow-lg rounded-lg p-2 max-h-60 overflow-y-auto">
-    {results.map((item) => (
-    <Link to='/explore'>
-      <div
-        key={item.id}
-        className="p-2 hover:bg-gray-100 cursor-pointer"
-      >
-        {item.name}
-      </div>
-      </Link>
-    ))}
+   {results.map((item) => (
+  <div
+    key={item._id} // ⚠️ fix key (you used item.id before)
+    onClick={() => {
+      navigate(`/foodDetails/${item._id}`, {
+        state: item
+      });
+      dispatch(toggleSearch()); // close dropdown
+    }}
+    className="p-2 hover:bg-gray-100 cursor-pointer"
+  >
+    {item.name}
+  </div>
+))}
   </div> :null
 }
       </div>
@@ -101,7 +127,7 @@ const handleLike = () => {
 
       <div>
         <Link to="/likes">
-        <button onClick={handleLike} className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
+        <button className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
         </Link>
       </div>
 
