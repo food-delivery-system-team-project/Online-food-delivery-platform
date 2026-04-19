@@ -4,55 +4,86 @@ import { FaFacebook } from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <div>
-        <div className='h-full w-full bg-gray-200 grid rounded-t-3xl grid-cols-1 gird-rows-3'>
-            <div className='h-full w-full grid gap-5 grid-cols-3 gird-rows-1 p-10'>
-                <span className='flex flex-col gap-5 items-center bg-[#ff6e4a] p-10 rounded-2xl'>
-                    <h1 className='text-[#28282B] text-5xl font-bold'>Email Support</h1>
-                    <p className='text-[#28282B] text-xl text-center font-bold'>General Support: support@foodexpress.com
-                        Orders & Refunds: orders@foodexpress.com
-                        Business/Partners: partners@foodexpress.com</p>
-                </span>
-                 <span className='flex flex-col gap-5 items-center bg-[#ff6e4a] p-10 rounded-2xl'>
-                    <h1 className='text-[#28282B] text-5xl font-bold'>Office Address</h1>
-                    <p className='text-[#28282B] text-xl text-center font-bold'>FoodExpress Pvt. Ltd.2nd Floor, Tech Park Plaza MG Road, Indore, Madhya Pradesh – 452001 India</p>
-                </span>
-                 <span className='flex flex-col gap-5 items-center bg-[#ff6e4a] p-10 rounded-2xl'>
-                    <h1 className='text-[#28282B] text-5xl font-bold'>Customer Support</h1>
-                    <p className='text-[#28282B] text-xl text-center font-bold'>
-                        Phone: +91 98765 43210<br/>
-                        Alternate Phone: +91 91234 56780
-                    </p>
-                 </span>
-            </div>
-            <div className='h-full w-full justify-items-center grid gap-5 grid-cols-2 gird-rows-1 p-10'>
-            <span>
-            <h1 className='text-[#28282B] text-8xl font-bold'>Social Media</h1>
-            <ul className="flex gap-5 mt-5 text-2xl font-bold">
-                    <li>
-                        <FaInstagram />
-                        <a href="/pagenotfound">@foodexpress_app</a>
-                    </li>
-                    <li>
-                        <FaXTwitter />
-                        <a href="/pagenotfound">@foodexpress_in</a>
-                    </li>
-                    <li>
-                        <FaFacebook />
-                        <a href="/pagenotfound">FoodExpress India</a>
-                    </li>
-                </ul>
-            </span>
-            <span className="flex gap-5 flex-col justify-center items-center">
-               <h1 className='text-[#28282B] text-8xl font-bold'>Working Hours</h1>
-               <p className="text-2xl font-bold">Monday to Sunday: 8:00 AM - 11:00 PM (IST)</p>
-            </span>
-            </div>
+    <div className="bg-gray-200 rounded-t-3xl">
 
+      {/* TOP SECTION */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 p-5 md:p-10">
 
+        {/* EMAIL */}
+        <div className="flex flex-col gap-4 items-center bg-[#ff6e4a] p-5 md:p-8 rounded-2xl text-center">
+          <h1 className="text-xl md:text-3xl font-bold text-[#28282B]">
+            Email Support
+          </h1>
+          <p className="text-sm md:text-base font-semibold text-[#28282B]">
+            General: support@foodexpress.com <br />
+            Orders: orders@foodexpress.com <br />
+            Business: partners@foodexpress.com
+          </p>
         </div>
-    </div>
-  )
-}
 
-export default Footer
+        {/* ADDRESS */}
+        <div className="flex flex-col gap-4 items-center bg-[#ff6e4a] p-5 md:p-8 rounded-2xl text-center">
+          <h1 className="text-xl md:text-3xl font-bold text-[#28282B]">
+            Office Address
+          </h1>
+          <p className="text-sm md:text-base font-semibold text-[#28282B]">
+            FoodExpress Pvt. Ltd.<br />
+            MG Road, Indore<br />
+            Madhya Pradesh – 452001
+          </p>
+        </div>
+
+        {/* PHONE */}
+        <div className="flex flex-col gap-4 items-center bg-[#ff6e4a] p-5 md:p-8 rounded-2xl text-center">
+          <h1 className="text-xl md:text-3xl font-bold text-[#28282B]">
+            Customer Support
+          </h1>
+          <p className="text-sm md:text-base font-semibold text-[#28282B]">
+            +91 98765 43210 <br />
+            +91 91234 56780
+          </p>
+        </div>
+
+      </div>
+
+      {/* BOTTOM SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-5 md:p-10 items-center">
+
+        {/* SOCIAL */}
+        <div className="flex flex-col items-center lg:items-start text-center lg:text-left gap-4">
+          <h1 className="text-2xl md:text-4xl font-bold text-[#28282B]">
+            Social Media
+          </h1>
+
+          <ul className="flex flex-col md:flex-row gap-4 text-lg md:text-xl font-semibold items-center lg:items-start">
+            <li className="flex items-center gap-2">
+              <FaInstagram />
+              <span>@foodexpress_app</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <FaXTwitter />
+              <span>@foodexpress_in</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <FaFacebook />
+              <span>FoodExpress India</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* WORKING HOURS */}
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h1 className="text-2xl md:text-4xl font-bold text-[#28282B]">
+            Working Hours
+          </h1>
+          <p className="text-sm md:text-lg font-semibold">
+            Mon - Sun: 8:00 AM - 11:00 PM
+          </p>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
+export default Footer;

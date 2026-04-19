@@ -10,24 +10,25 @@ import { useNavigate } from 'react-router-dom';
 
 const FoodCard = ({food}) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const LikedItems = useSelector((state) => state.Like.likedItems);
   const isLiked = LikedItems.includes(food._id);
-  const dispatch = useDispatch();
 
-  const handleLike = () => {
+  const handleLike = (e) => {
+    e.stopPropagation();
     dispatch(toggleLike(food._id));
-    console.log(isLiked)
   };
   return (
     <div onClick={()=>{
       navigate(`/foodDetails/${food._id}`);
-    }} className=' cursor-pointer'>
+    }} className='cursor-pointer'>
         <div className='h-60 w-70 bg-white flex flex-col relative items-center rounded-3xl'>
 
           {/* top section */}
           <div className='h-1/2 w-full flex justify-center items-center overflow-hidden rounded-t-2xl' >
               <img className="h-full w-full object-cover"  src={food.image}  onError={(e) => {e.target.src = "./src/Images/Logo.png"; }}/>
           </div>
+            
 
           {/* time section */}
             <div className='flex flex-col items-center justify-center gap-3 absolute left-1 top-21'>

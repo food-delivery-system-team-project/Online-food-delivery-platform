@@ -1,9 +1,7 @@
 import { Router } from "react-router-dom";
 import "./index.css";
-import Navbar from "./Components/Navbar";
 import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
-import CustomCursor from "./Components/CustomCursor";
 import ProtectedRoute from "./ProtectedRoute";
 import Contact from "./Pages/Contact";
 import Orders from "./Pages/Orders";
@@ -14,14 +12,12 @@ import Login from "./Auth/Login"
 import Register from "./Auth/Register";
 import FoodDetailCard from "./Components/Card/FoodDetailCard";
 import UserProfile from "./Pages/UserProfile";
-import BackBtn from "./Components/NavComp/BackBtn";
 
 
 
 const App = () => {
   return (
     <>
-    <BackBtn/>
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/help" element={<Contact/>} />
