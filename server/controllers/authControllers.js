@@ -5,35 +5,133 @@ const {
   generateAccessToken,
   generateRefreshTokne,
 } = require("../utils/generateToken");
+const generateOPT = require("../utils/otpGenerator");
+const sendOTPEmail = require("../utils/sendOTPEmail");
+const generateOTP = require("../utils/otpGenerator");
 
-//if user are register
+//user registration
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
 
     //check user is already exist
-    const userExist = await User.findOne({ email });
-    if (userExist) {
+    let user = await User.findOne({ email });
+    if (user && user.isVarified) {
       return res.status(400).json({ message: "user already exists" });
     }
 
-    // password hashing
+    //generate otp
+    const otp = generateOPT();
+
     const salt = await bcrypt.genSalt(10);
+
+    //hash otp
+    const hashOTP = await bcrypt.hash(otp, salt);
+
+    // password hashing
     const hashPassword = await bcrypt.hash(password, salt);
 
-    //create user
-    const user = await User.create({
-      name,
-      email,
-      password: hashPassword,
-      role: "user",
-      phone,
-      address,
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        password: hashPassword,
+        phone,
+        address,
+        otp: hashOTP,
+        otpExpire: Date.now() + 5 * 60 * 1000,
+      });
+    } else {
+      user.name = name;
+      user.password = hashPassword;
+      user.phone = phone;
+      user.address = address;
+      user.otp = hashOTP;
+      user.otpExpire = Date.now() + 5 * 60 * 1000;
+
+      await user.save();
+    }
+
+    await sendOTPEmail(email, otp);
+
+    res.status(200).json({
+      message: "otp sent to email.please verify..",
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+//verify otp then save the data
+const verifyOTPAndRegister = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    if (user.isVarified) {
+      return res.status(400).json({ message: "already varified" });
+    }
+
+    //compare hash otp
+
+    const isMatch = await bcrypt.compare(otp, user.otp);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid OTP" });
+    }
+
+    if (user.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "otp expired" });
+    }
+
+    user.isVarified = true;
+    user.otp = null;
+    user.otpExpire = null;
+
+    await user.save();
 
     res.status(201).json({
-      message: "user register success",
+      message: "user registration success",
       user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const resendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.isVarified) {
+      return res.status(400).json({ message: "user already verify" });
+    }
+
+    const otp = generateOPT();
+
+    const salt = await bcrypt.genSalt(10);
+    const hashOTP = await bcrypt.hash(otp, salt);
+
+    user.otp = hashOTP;
+    user.otpExpire = Date.now() + 5 * 60 * 1000;
+
+    await user.save();
+
+    await sendOTPEmail(email, otp);
+
+    res.json({
+      message: "new OTP sent successfully",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -48,6 +146,12 @@ const userLogin = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "user not found" });
+    }
+
+    if (!user.isVarified) {
+      return res
+        .status(403)
+        .json({ message: "please verify your email before login" });
     }
     //password matching
     const isMatch = await bcrypt.compare(password, user.password);
@@ -114,4 +218,11 @@ const logout = async (req, res) => {
   res.json({ message: "logged out successfully" });
 };
 
-module.exports = { registerUser, userLogin, refreshToken, logout };
+module.exports = {
+  registerUser,
+  verifyOTPAndRegister,
+  resendOTP,
+  userLogin,
+  refreshToken,
+  logout,
+};
