@@ -1,1 +1,39 @@
 @import "tailwindcss";
+/* --- Professional Scrollbar Styling --- */
+
+/* 1. Puray Application ke liye ya specific class ke liye */
+::-webkit-scrollbar {
+  width: 6px; /* Scrollbar ki ch चौड़ाई (width) */
+  height: 6px;
+}
+
+/* 2. Background Track (Jahan scrollbar chalta hai) */
+::-webkit-scrollbar-track {
+  background: transparent; /* Isse track invisible ho jayega aur clean dikhega */
+}
+
+/* 3. Handle (Jo bar hum move karte hain) */
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; /* Light gray color */
+  border-radius: 20px; /* Fully rounded handle */
+  transition: all 0.3s ease;
+}
+
+/* 4. Hover karne par color change (Orange theme matching) */
+::-webkit-scrollbar-thumb:hover {
+  background: #f97316; /* Tailwind orange-500 */
+}
+
+/* Agar aap chahte hain ki sirf Dashboard ke main content par ye style ho: */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #f97316, #dc2626); /* Orange to Red gradient */
+}
