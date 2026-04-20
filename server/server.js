@@ -14,9 +14,9 @@ const adminRoutes = require("./routes/adminRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const adminDbRoutes = require("./routes/adminDbRoutes");
 const authRoutes = require("./routes/authRoutes");
+const favoritesRoutes = require("./routes/favoriteFoodRoutes");
 
 const { initSocket } = require("./sockets/socket"); // 👈 make sure export is correct
-
 
 const app = express();
 
@@ -44,10 +44,11 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/adminDb", adminDbRoutes);
+app.use("/api/favorites", favoritesRoutes);
 
-app.get('/',(req , res)=>{
- res.send("app is running");
-})
+app.get("/", (req, res) => {
+  res.send("app is running");
+});
 
 const PORT = process.env.PORT || 8000;
 

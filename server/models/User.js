@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Food",
+      },
+    ],
   },
   { timestamps: true },
 );
@@ -56,7 +62,7 @@ const userSchema = new mongoose.Schema(
 userSchema.index(
   { createdAt: 1 },
   {
-    expireAfterSeconds: 2*24*60*60, // 2days
+    expireAfterSeconds: 2 * 24 * 60 * 60, // 2days
     partialFilterExpression: { isVarified: false },
   },
 );

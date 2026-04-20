@@ -8,11 +8,40 @@ const {
 const generateOPT = require("../utils/otpGenerator");
 const sendOTPEmail = require("../utils/sendOTPEmail");
 const generateOTP = require("../utils/otpGenerator");
+const {
+  validateEmail,
+  suggestCorrection,
+  checkDomain,
+} = require("../utils/validateEmail");
 
 //user registration
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
+
+    //check format validation
+    const { error } = validateEmail(email);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+    }
+
+    const suggestion = suggestCorrection(email);
+    if (suggestion) {
+      return res.status(400).json({
+        message: `Did you mean ${suggestion}?`,
+      });
+    }
+
+    const isValidDomain = await checkDomain(email);
+    if (!isValidDomain) {
+      return res.status(400).json({
+        message: "Email domain does not exist",
+      });
+    }
 
     //check user is already exist
     let user = await User.findOne({ email });
@@ -161,8 +190,8 @@ const userLogin = async (req, res) => {
     }
 
     // Generate Token
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshTokne(user._id);
+    const accessToken = generateAccessToken(user._id,user.role);
+    const refreshToken = generateRefreshTokne(user._id,user.role);
 
     user.refreshToken = refreshToken;
 
