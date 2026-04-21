@@ -43,6 +43,13 @@ const userSchema = new mongoose.Schema(
     otpExpire: {
       type: Date,
     },
+    otpLastSent: {
+      type: Date,
+    },
+    isOtpSent: {
+      type: Boolean,
+      default: false,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

@@ -1,9 +1,7 @@
 import { Router } from "react-router-dom";
 import "./index.css";
-import Navbar from "./Components/Navbar";
 import { Routes, Route } from "react-router-dom";
 import Home from "./Pages/Home";
-import CustomCursor from "./Components/CustomCursor";
 import ProtectedRoute from "./ProtectedRoute";
 import Contact from "./Pages/Contact";
 import Orders from "./Pages/Orders";
@@ -13,13 +11,13 @@ import FoodList from "./Pages/FoodList";
 import Login from "./Auth/Login"
 import Register from "./Auth/Register";
 import FoodDetailCard from "./Components/Card/FoodDetailCard";
+import UserProfile from "./Pages/UserProfile";
 
 
 
 const App = () => {
   return (
     <>
-      <CustomCursor/>
       <Routes>
         <Route path="/" element={<Home/>} />
         <Route path="/help" element={<Contact/>} />
@@ -27,6 +25,7 @@ const App = () => {
         <Route path="/likes" element={<Likes/>} />
         <Route path="/cart" element={<ProtectedRoute><Cart/></ProtectedRoute>} />
         <Route path="/foodDetails/:id" element={<ProtectedRoute><FoodDetailCard/></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><UserProfile/></ProtectedRoute>}/>
         <Route path="/explore" element={<FoodList/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>}/>
