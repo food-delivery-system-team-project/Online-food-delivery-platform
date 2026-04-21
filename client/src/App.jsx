@@ -12,6 +12,7 @@ import Login from "./Auth/Login"
 import Register from "./Auth/Register";
 import FoodDetailCard from "./Components/Card/FoodDetailCard";
 import UserProfile from "./Pages/UserProfile";
+import ProfileImageUpload from "./Pages/ProfileImageUpload";
 
 
 
@@ -26,6 +27,7 @@ const App = () => {
         <Route path="/cart" element={<ProtectedRoute><Cart/></ProtectedRoute>} />
         <Route path="/foodDetails/:id" element={<ProtectedRoute><FoodDetailCard/></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><UserProfile/></ProtectedRoute>}/>
+        <Route path="/profileimageupload" element={<ProtectedRoute><ProfileImageUpload/></ProtectedRoute>}/>
         <Route path="/explore" element={<FoodList/>} />
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<Register/>}/>

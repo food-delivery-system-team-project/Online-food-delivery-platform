@@ -4,12 +4,31 @@ import { GoHeart } from "react-icons/go";
 import { BsBasket3 } from "react-icons/bs";
 import { PiClipboardText } from "react-icons/pi";
 import { FaStar } from "react-icons/fa";
+import { IoCameraOutline } from "react-icons/io5";
+import API from "../api/fetchApi";
+import { useNavigate } from "react-router-dom";
+import { MdEdit } from "react-icons/md";
 
 const UserProfile = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   const likedItems = useSelector((state) => state.Like.likedItems || []);
   const cartItems = useSelector((state) => state.cart?.items || []);
+
+  useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await API.get("/users/profile");
+      setUser(res.data.user);
+    } catch (err) {
+      console.log(err);
+      setUser(null);
+    }
+  };
+
+  fetchUser();
+}, []);
 
   const orders = [];
   const ratings = [];
@@ -36,9 +55,15 @@ const UserProfile = () => {
 
         {/* LEFT SIDE (PROFILE INFO) */}
         <div className="lg:w-1/3 bg-white rounded-3xl shadow-xl p-6 flex flex-col items-center gap-4">
-
-          <div className="h-28 w-28 rounded-full bg-[#ff6e4a] flex items-center justify-center text-white text-4xl font-bold">
-            {user.name?.charAt(0)}
+          {user.image ? (
+            <img src={user.image} className="h-28 w-28 rounded-full object-cover" />
+          ) : (
+            <div className="h-28 w-28 rounded-full bg-[#ff6e4a] flex items-center justify-center text-white text-4xl">
+              {user.name?.charAt(0)}
+            </div>
+          )}
+          <div onClick={()=>{navigate("/profileimageupload")}} className=" absolute p-2 bg-white shadow rounded-full mt-20 ml-20 flex justify-center items-center">
+            <IoCameraOutline className=" text-xl text-[#28282B]" />
           </div>
 
           <h1 className="text-2xl font-bold">{user.name}</h1>
@@ -48,9 +73,27 @@ const UserProfile = () => {
             {user.role}
           </span>
 
+          <div className="h-auto w-full bg-gray-50 rounded-2xl p-5 flex items-center gap-3 flex-col">
+            <h1 className="p-2 w-full rounded-2xl bg-gray-100 flex justify-between items-center">
+              +91 {user.phone}
+              <span onClick={()=>{navigate("/profileimageupload")}} className="p-2 bg-white shadow rounded-full flex justify-center items-center">
+              <MdEdit />
+            </span> 
+            </h1>
+            
+            <h1 className="p-2 w-full rounded-2xl bg-gray-100 flex justify-between items-center">
+              {user.address}
+              <span onClick={()=>{navigate("/profileimageupload")}} className="p-2 bg-white shadow rounded-full flex justify-center items-center">
+              <MdEdit />
+            </span> 
+            </h1>
+
+          </div>
+
           <button
             onClick={() => {
-              localStorage.clear();
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
               window.location.href = "/login";
             }}
             className="mt-4 w-full bg-[#ff6e4a] text-white py-3 rounded-xl font-bold"
