@@ -9,6 +9,7 @@ import { FaStar } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
 
 const FoodCard = ({food}) => {
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const LikedItems = useSelector((state) => state.Like.likedItems);

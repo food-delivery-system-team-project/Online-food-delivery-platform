@@ -1,12 +1,44 @@
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import API from "../../api/fetchApi";
+import { addToCart } from "../../Features/cartSlice";
+import { useEffect } from "react";
 
 const FoodDetailCard = () => {
+
+  //Back end data passing of cart
+  
+    const handleAddToCart = async (food) => {
+    try {
+      // 1. Update UI instantly
+      dispatch(addToCart(food));
+  
+      // 2. Update backend
+      await API.post("/cart", {
+        foodId: food._id,
+        quantity: 1
+      });
+  
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const dispatch = useDispatch();
   const { id } = useParams();
   const foods = useSelector((state) => state.search.allFoods);
   const food = foods.find((item) => item._id === id);
 
   if (!food) return <p className="p-10">Loading...</p>;
+  useEffect(() => {
+  if (!food) {
+    // fallback fetch
+    API.get(`/foods/${id}`)
+      .then(res => setLocalFood(res.data))
+      .catch(err => console.log(err));
+  }
+}, [id, food]);
 
   return (
     <div className="min-h-screen w-full bg-[#f5f5f5] px-4 lg:px-20 py-10">
@@ -90,9 +122,12 @@ const FoodDetailCard = () => {
 
           {/* BUTTONS */}
           <div className="flex flex-col gap-3 mt-6">
-            <button className="bg-[#ff6e4a] text-white py-3 rounded-lg font-semibold hover:opacity-90">
-              Add to Cart
-            </button>
+                 <button
+                        onClick={() => handleAddToCart(food)}
+                        className="bg-[#ff6e4a] text-white py-3 rounded-lg font-semibold hover:opacity-90"
+                  >
+                        Add to Cart
+                  </button>
 
             <button className="border border-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-100">
               Buy Now

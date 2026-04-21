@@ -9,6 +9,8 @@ import { auth, provider } from "../Auth/firebase";
 
 const Login = () => {
 
+  
+
   // googel login code
   const handleGoogleLogin = async () => {
   try {
@@ -19,7 +21,9 @@ const Login = () => {
     console.log(user);
 
     // save token + user
-    localStorage.setItem("token", user.accessToken);
+    const token = await user.getIdToken();
+
+localStorage.setItem("token", token);
 
     localStorage.setItem("user", JSON.stringify({
       name: user.displayName,
@@ -28,7 +32,7 @@ const Login = () => {
     }));
 
     // send to backend
-    await API.post("/users/login", {
+    await API.post("/auth/login", {
       name: user.displayName,
       email: user.email,
     });
@@ -62,15 +66,20 @@ const Login = () => {
 
     try{
 
-      const res = await API.post("users/login",formData)
+      const res = await API.post("/auth/login",formData)
   
       console.log(res.data); // send to backend
   
       // token saving in localstorage
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.token.accessToken);
 
       // user basic detail save 
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      localStorage.setItem("user", JSON.stringify({
+        name: res.data.user.name,
+        email: res.data.user.email,
+        address: res.data.user.address,
+        phone: res.data.user.phone,
+      }));
   
       // redirecting
   

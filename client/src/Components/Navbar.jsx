@@ -13,6 +13,9 @@ import API from "../api/fetchApi";
 
 
 const Navbar = () => {
+  // cart count
+  const cartCount = useSelector((state) => state.cart.totalQuantity);
+
   const navigate = useNavigate();
   // login user details
 
@@ -99,23 +102,28 @@ useEffect(() => {
 
       <div onClick={()=>dispatch(toggleSearch())} className='h-13 w-2/3 bg-white rounded-3xl p-3 flex items-center'> 
         <CiSearch className="text-3xl" />
-        <input onChange={(e) => dispatch(setQuery(e.target.value))} className="ml-2 h-full w-full outline-0" type="search" placeholder="Search for Foods..." />
+        <input 
+        onFocus={() => dispatch(toggleSearch())}
+         onChange={(e) => dispatch(setQuery(e.target.value))} className="ml-2 h-full w-full outline-0" type="search" placeholder="Search for Foods..." />
         {searchToggle ?
   <div className="absolute top-20 w-100 bg-white shadow-lg rounded-lg p-2 max-h-60 overflow-y-auto">
-   {results.map((item) => (
-  <div
-    key={item._id} // ⚠️ fix key (you used item.id before)
-    onClick={() => {
-      navigate(`/foodDetails/${item._id}`, {
-        state: item
-      });
-      dispatch(toggleSearch()); // close dropdown
-    }}
-    className="p-2 hover:bg-gray-100 cursor-pointer"
-  >
-    {item.name}
-  </div>
-))}
+  {results?.length > 0 ? (
+  results.map((item) => (
+    <div
+      key={item._id}
+      onClick={() => {
+        navigate(`/foodDetails/${item._id}`, {
+          state: item
+        });
+      }}
+      className="p-2 hover:bg-gray-100 cursor-pointer"
+    >
+      {item.name}
+    </div>
+  ))
+) : (
+  <p className="p-2 text-gray-400">No results</p>
+)}
   </div> :null
 }
       </div>
@@ -135,7 +143,9 @@ useEffect(() => {
       <Link to="/cart">
       <div className="px-3 py-3 flex items-center gap-2 rounded-full bg-white/60 flex items-center justify-center">
         <button className='text-white font-bold'><BsBasket3 className="text-2xl"/></button>
-          <span className=" absolute top-9 ml-5 h-5 w-5 flex items-center justify-center text-black rounded-full bg-white/80 font-bold">0</span>      
+          <span className="absolute top-9 ml-5 h-5 w-5 flex items-center justify-center text-black rounded-full bg-white/80 font-bold">
+          {cartCount}
+      </span>      
       </div> 
       </Link>
   
