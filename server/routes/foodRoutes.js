@@ -11,7 +11,7 @@ const isAdmin = require("../middleware/adminMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 
 //get foods
-router.get("/", protect, getFoods);
+router.get("/", getFoods);
 
 router.post("/", protect, isAdmin, upload.single("image"), addFood);
 

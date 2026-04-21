@@ -9,11 +9,12 @@ const {
   logout,
 } = require("../controllers/authControllers");
 const protect = require("../middleware/authMiddleware");
+const { loginLimiter, otpLimiter } = require("../middleware/authLimiter");
 
 router.post("/register", registerUser);
 router.post("/verify-otp", verifyOTPAndRegister);
-router.post("/resend-otp", resendOTP);
-router.post("/login", userLogin);
+router.post("/resend-otp", otpLimiter, resendOTP);
+router.post("/login", loginLimiter, userLogin);
 router.post("/refreshToken", refreshToken);
 router.post("/logout", protect, logout);
 

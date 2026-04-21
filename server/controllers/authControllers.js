@@ -8,16 +8,52 @@ const {
 const generateOPT = require("../utils/otpGenerator");
 const sendOTPEmail = require("../utils/sendOTPEmail");
 const generateOTP = require("../utils/otpGenerator");
+const {
+  validateEmail,
+  suggestCorrection,
+  checkDomain,
+} = require("../utils/validateEmail");
 
 //user registration
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
 
-    //check user is already exist
+    //check format validation
+    const { error } = validateEmail(email);
+
+    if (error) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid email format",
+      });
+    }
+
+    const suggestion = suggestCorrection(email);
+    if (suggestion) {
+      return res.status(400).json({
+        message: `Did you mean ${suggestion}?`,
+      });
+    }
+
+    const isValidDomain = await checkDomain(email);
+    if (!isValidDomain) {
+      return res.status(400).json({
+        message: "Email domain does not exist",
+      });
+    }
+
     let user = await User.findOne({ email });
+
+    //check user is already exist
     if (user && user.isVarified) {
       return res.status(400).json({ message: "user already exists" });
+    }
+
+    if (user && user.isOtpSent) {
+      return res.status(400).json({
+        message: "OTP already sent .please use resend OTP",
+      });
     }
 
     //generate otp
@@ -40,16 +76,9 @@ const registerUser = async (req, res) => {
         address,
         otp: hashOTP,
         otpExpire: Date.now() + 5 * 60 * 1000,
+        otpLastSent: Date.now(),
+        isOtpSent: true,
       });
-    } else {
-      user.name = name;
-      user.password = hashPassword;
-      user.phone = phone;
-      user.address = address;
-      user.otp = hashOTP;
-      user.otpExpire = Date.now() + 5 * 60 * 1000;
-
-      await user.save();
     }
 
     await sendOTPEmail(email, otp);
@@ -77,21 +106,22 @@ const verifyOTPAndRegister = async (req, res) => {
       return res.status(400).json({ message: "already varified" });
     }
 
-    //compare hash otp
+    if (user.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "otp expired" });
+    }
 
+    //compare hash otp
     const isMatch = await bcrypt.compare(otp, user.otp);
 
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
 
-    if (user.otpExpire < Date.now()) {
-      return res.status(400).json({ message: "otp expired" });
-    }
-
     user.isVarified = true;
     user.otp = null;
     user.otpExpire = null;
+    user.isOtpSent = false;
+    user.otpLastSent = null;
 
     await user.save();
 
@@ -118,6 +148,15 @@ const resendOTP = async (req, res) => {
       return res.status(400).json({ message: "user already verify" });
     }
 
+    if (!user.isOtpSent) {
+      return res.status(400).json({ message: "please register first" });
+    }
+
+    if (Date.now() - user.otpLastSent < 60000) {
+      return res
+        .status(429)
+        .json({ message: "please wait before requesting the another otp" });
+    }
     const otp = generateOPT();
 
     const salt = await bcrypt.genSalt(10);
@@ -125,6 +164,7 @@ const resendOTP = async (req, res) => {
 
     user.otp = hashOTP;
     user.otpExpire = Date.now() + 5 * 60 * 1000;
+    user.otpLastSent = Date.now();
 
     await user.save();
 
@@ -161,8 +201,8 @@ const userLogin = async (req, res) => {
     }
 
     // Generate Token
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshTokne(user._id);
+    const accessToken = generateAccessToken(user._id, user.role);
+    const refreshToken = generateRefreshTokne(user._id, user.role);
 
     user.refreshToken = refreshToken;
 

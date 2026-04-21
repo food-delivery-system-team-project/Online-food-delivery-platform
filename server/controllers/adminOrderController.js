@@ -35,7 +35,7 @@ const updateOrderStatus = async (req, res) => {
       ordeId: order._id,
       status: order.status,
     });
-    zzzz;
+    
     res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });

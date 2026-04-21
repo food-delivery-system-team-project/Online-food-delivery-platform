@@ -4,6 +4,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const { connectRadis } = require("./config/redis");
 
 const connectDB = require("./config/db");
 
@@ -14,9 +15,12 @@ const adminRoutes = require("./routes/adminRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const adminDbRoutes = require("./routes/adminDbRoutes");
 const authRoutes = require("./routes/authRoutes");
+const favoritesRoutes = require("./routes/favoriteFoodRoutes");
 
-const { initSocket } = require("./sockets/socket"); // 👈 make sure export is correct
+const { initSocket } = require("./sockets/socket"); // 
 
+connectRadis();
+const { globalLimiter } = require("./middleware/rateLImiter");
 
 const app = express();
 
@@ -24,6 +28,7 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.use(globalLimiter);
 
 const server = http.createServer(app);
 
@@ -44,10 +49,11 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/adminDb", adminDbRoutes);
+app.use("/api/favorites", favoritesRoutes);
 
-app.get('/',(req , res)=>{
- res.send("app is running");
-})
+app.get("/", (req, res) => {
+  res.send("app is running");
+});
 
 const PORT = process.env.PORT || 8000;
 

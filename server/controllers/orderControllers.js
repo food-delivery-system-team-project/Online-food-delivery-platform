@@ -20,7 +20,6 @@ const placeOrder = async (req, res) => {
 };
 
 //find all orders
-
 const findUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user.id }).populate(
@@ -33,4 +32,30 @@ const findUserOrders = async (req, res) => {
   }
 };
 
-module.exports = { placeOrder, findUserOrders };
+const deleteOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: "order not found" });
+    }
+
+    if (order.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: "unauthorized action" });
+    }
+
+    if (order.status !== "pending") {
+      return res
+        .status(400)
+        .json({ message: "cannot delete the process order" });
+    }
+
+    await Order.findByIdAndDelete(orderId);
+
+    res.json({ success: true, message: "order deleted succesfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+module.exports = { placeOrder, findUserOrders, deleteOrder };
