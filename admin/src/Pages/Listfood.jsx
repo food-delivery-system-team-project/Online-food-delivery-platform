@@ -1,132 +1,139 @@
-import React, { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, Pencil, Trash2, Eye, Boxes, Sparkles } from "lucide-react";
+import { getFoods, deleteFood } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 
-const foodData = [
-  {
-    id: 1,
-    name: "Veg Burger",
-    category: "Fastfood",
-    type: "Veg",
-    price: 120,
-    rating: 4.5,
-    image: "https://via.placeholder.com/50"
-  },
-  {
-    id: 2,
-    name: "Chicken Pizza",
-    category: "Fastfood",
-    type: "Nonveg",
-    price: 320,
-    rating: 4.2,
-    image: "https://via.placeholder.com/50"
-  },
-  {
-    id: 3,
-    name: "Paneer Thali",
-    category: "Meal",
-    type: "Veg",
-    price: 220,
-    rating: 4.8,
-    image: "https://via.placeholder.com/50"
-  },
-  {
-    id: 4,
-    name: "Mix Noodles",
-    category: "Mix",
-    type: "Mix",
-    price: 180,
-    rating: 4.0,
-    image: "https://via.placeholder.com/50"
-  }
-];
+export default function Listfood() {
+  const navigate = useNavigate();
+  const [foods, setFoods] = useState([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-export default function ListFood() {
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
+  useEffect(() => {
+    getFoods().then((data) => {
+      setFoods(data);
+      setLoading(false);
+    });
+  }, []);
 
-  const filteredFood = foodData.filter((item) => {
-    return (
-      (category === "All" ||
-        item.category === category ||
-        item.type === category) &&
-      item.name.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const filtered = useMemo(
+    () =>
+      foods.filter(
+        (f) =>
+          f.name.toLowerCase().includes(query.toLowerCase()) ||
+          f.category.toLowerCase().includes(query.toLowerCase())
+      ),
+    [foods, query]
+  );
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteFood(deleting.id);
+      setFoods((prev) => prev.filter((food) => food.id !== deleting.id));
+      setDeleting(null);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
-      {/* Top */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h2 className="text-2xl font-bold">Food Stock</h2>
-
-        <div className="flex gap-3">
+    <div className="animate-fadeIn space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">Your catalogue</p>
+          <h1 className="page-heading mt-1">Menu items</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">{foods.length} items currently on your menu.</p>
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-500" />
           <input
-            type="text"
-            placeholder="Search food..."
-            className="border px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
-            value={search}
-            name="search"
-            onChange={(e) => setSearch(e.target.value)}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search food or category..."
+            className="input pl-10"
           />
-
-          <select
-            className="border px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="All">All</option>
-            <option value="Veg">Veg</option>
-            <option value="Nonveg">Nonveg</option>
-            <option value="Fastfood">Fastfood</option>
-            <option value="Mix">Mix</option>
-          </select>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b text-left text-gray-500">
-              <th className="py-3">Image</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Type</th>
-              <th>Price</th>
-              <th>Rating</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredFood.map((food) => (
-              <tr key={food.id} className="border-b hover:bg-red-200">
-                <td className="py-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {loading
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="card h-64 animate-pulse bg-ink-100/60" />
+            ))
+          : filtered.map((food) => (
+              <div
+                key={food.id}
+                className="card group overflow-hidden p-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
+              >
+                <div className="relative h-40 overflow-hidden bg-ink-100">
                   <img
                     src={food.image}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    alt={food.name}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                </td>
-
-                <td>{food.name}</td>
-                <td>{food.category}</td>
-
-                <td>
-                  <span className="bg-green-100 text-green-600 px-2 py-1 rounded-full text-xs">
-                    {food.type}
+                  <span className="absolute left-3 top-3 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink-800 backdrop-blur dark:bg-slate-900/80 dark:text-slate-100">
+                    {food.category}
                   </span>
-                </td>
-
-                <td>₹{food.price}</td>
-
-                <td>
-                  <div className="flex items-center gap-1">
-                    ⭐ {food.rating}
+                  <span className={`absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-semibold ${food.status === "Available" ? "bg-emerald-500/90 text-white" : "bg-rose-500/90 text-white"}`}>
+                    {food.status}
+                  </span>
+                </div>
+                <div className="space-y-3 p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-semibold leading-tight text-ink-900 dark:text-slate-100">{food.name}</h3>
+                      <p className="mt-1 text-sm text-ink-600 dark:text-slate-300">{food.description || "A polished dish ready for the next order."}</p>
+                    </div>
                   </div>
-                </td>
-              </tr>
+
+                  <div className="flex items-center justify-between rounded-xl bg-primary-50/70 px-3 py-2.5 dark:bg-slate-800">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500 dark:text-slate-400">Price</p>
+                      <p className="text-lg font-bold text-primary">₹{food.price}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500 dark:text-slate-400">Stock</p>
+                      <p className="text-sm font-semibold text-ink-800 dark:text-slate-200">{food.stock} units</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
+                      <Sparkles size={12} /> One-line preview
+                    </div>
+                    <div className="flex gap-1.5">
+                      <button onClick={() => navigate("/manage-food")} className="btn-ghost !p-2" title="Edit in menu manager">
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDeleting(food)}
+                        className="btn-ghost !p-2 hover:!bg-red-50 hover:!text-red-500"
+                        title="Delete"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
       </div>
+
+      {!loading && filtered.length === 0 && (
+        <div className="card text-center py-16 text-ink-600 dark:text-slate-300">No food items match your search.</div>
+      )}
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        title={`Delete ${deleting?.name || "item"}?`}
+        message={`This will permanently remove ${deleting?.name || "this item"} from your menu. You cannot undo this action.`}
+        loading={isDeleting}
+        onClose={() => !isDeleting && setDeleting(null)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

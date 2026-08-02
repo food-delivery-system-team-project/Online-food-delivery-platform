@@ -1,218 +1,53 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Home, Utensils, ShoppingCart, Users, Settings, LogOut, Bell, Search, Menu, 
-  ShoppingBag, DollarSign, ClipboardList, ChevronUp, ChevronDown, AlertTriangle,
-  User, HelpCircle, Edit
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight, BellRing, CalendarDays, ChevronDown, Clock3, CreditCard, IndianRupee, LayoutDashboard, PackageCheck, Plus, ShoppingBag, Users, UtensilsCrossed } from "lucide-react";
+import { getDashboardStats } from "../api";
 
-import Orders from "./Orders";
-import Addfood from "./Addfood";
-import ListFood from "./ListFood";
-import Customers from "./Customers";
-import OrderDetails from "./OrderDetails";
-import ManageFood from "./ManageFood";
-import SettingsPage from "./Settings";
-import ProfilePage from "./Profile"; // Import the new Profile component
-import API from "../api";
+const statusStyles = { Delivered: "bg-emerald-50 text-emerald-700", Preparing: "bg-amber-50 text-amber-700", "On the way": "bg-sky-50 text-sky-700", Cancelled: "bg-red-50 text-red-600" };
+const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+function SalesChart({ values }) {
+  const max = Math.max(...values, 1);
+  const points = values.map((value, index) => `${18 + index * 52},${138 - (value / max) * 94}`).join(" ");
+  const area = `18,142 ${points} 330,142`;
+  return <div className="relative mt-5 h-56 min-w-[510px]">
+    <svg viewBox="0 0 348 172" className="h-full w-full overflow-visible" role="img" aria-label="Weekly revenue graph">
+      <defs><linearGradient id="salesFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#ff6e4a" stopOpacity=".28" /><stop offset="100%" stopColor="#ff6e4a" stopOpacity="0" /></linearGradient><filter id="salesGlow"><feGaussianBlur stdDeviation="2" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+      {[30, 70, 110, 150].map((line) => <line key={line} x1="12" x2="336" y1={line} y2={line} stroke="#eee9e6" strokeDasharray="3 5" />)}
+      <polygon points={area} fill="url(#salesFill)" />
+      <polyline points={points} fill="none" stroke="#ff6e4a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" filter="url(#salesGlow)" />
+      {values.map((value, index) => { const [x, y] = points.split(" ")[index].split(","); return <g key={labels[index]} className="chart-dot"><circle cx={x} cy={y} r="6" fill="#fff" stroke="#ff6e4a" strokeWidth="3" /><title>{`${labels[index]}: Rs. ${value}k`}</title></g>; })}
+    </svg>
+    <div className="absolute inset-x-0 bottom-0 flex justify-between px-3 text-[11px] font-medium text-ink-500">{labels.map((label) => <span key={label}>{label}</span>)}</div>
+  </div>;
+}
 
 export default function Dashboard() {
-  const [page, setPage] = useState("dashboard");
-  const [foodOpen, setFoodOpen] = useState(false);
-  const [ordersOpen, setOrdersOpen] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("This week");
+  useEffect(() => { getDashboardStats().then((data) => { setStats(data); setLoading(false); }); }, []);
 
-  const confirmLogout = () => {
-    console.log("Logging out...");
-    setShowLogoutModal(false);
-  };
+  const orderSplit = useMemo(() => {
+    const orders = stats?.recentOrders || [];
+    return { delivered: orders.filter((order) => order.status === "Delivered").length, active: orders.filter((order) => ["Preparing", "On the way"].includes(order.status)).length, cancelled: orders.filter((order) => order.status === "Cancelled").length };
+  }, [stats]);
+  const cards = stats ? [
+    { label: "Gross revenue", value: `Rs. ${stats.totalRevenue.toLocaleString()}`, trend: "+8.1%", icon: IndianRupee, iconClass: "bg-primary/10 text-primary" },
+    { label: "Total orders", value: stats.totalOrders.toLocaleString(), trend: "+12.4%", icon: ShoppingBag, iconClass: "bg-violet-50 text-violet-600" },
+    { label: "New customers", value: stats.totalCustomers.toLocaleString(), trend: "+4.6%", icon: Users, iconClass: "bg-sky-50 text-sky-600" },
+    { label: "Menu availability", value: `${stats.totalFoods} items`, trend: "All synced", icon: UtensilsCrossed, iconClass: "bg-emerald-50 text-emerald-600" },
+  ] : [];
 
-  return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden font-sans">
-      
-      {/* --- CENTERED LOGOUT MODAL --- */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setShowLogoutModal(false)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full text-center border border-slate-100 animate-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle size={32} />
-            </div>
-            <h3 className="text-xl font-black text-slate-900 mb-2">Logout</h3>
-            <p className="text-slate-500 text-sm mb-8 font-medium">Are you sure you want to exit the admin panel?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setShowLogoutModal(false)} className="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition-all">Cancel</button>
-              <button onClick={confirmLogout} className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm shadow-lg transition-all">Logout</button>
-            </div>
-          </div>
-        </div>
-      )}
+  return <div className="dashboard-shell animate-fadeIn space-y-5">
+    <section className="dashboard-hero overflow-hidden rounded-3xl p-5 text-white sm:p-7"><div className="dashboard-hero-orb" /><div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between"><div><div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" /> Live restaurant operations</div><h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-white">Control centre</h1><p className="mt-2 max-w-xl text-sm leading-6 text-white/80">Monitor sales, orders, kitchen activity and customer growth from one polished admin workspace.</p></div><div className="grid grid-cols-2 gap-3 sm:flex"><Link to="/add-food" className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-ink-900 transition hover:-translate-y-0.5 hover:shadow-lg"><Plus size={17} /> Add food</Link><Link to="/orders" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/20"><PackageCheck size={17} /> Manage orders</Link></div></div></section>
 
-      {/* --- SIDEBAR --- */}
-      <aside className="w-64 bg-gradient-to-b from-orange-500 to-red-600 text-white flex flex-col hidden md:flex shrink-0">
-        <div className="p-8">
-          <h1 className="text-2xl font-black tracking-tight">Admin page</h1>
-        </div>
+    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">{loading ? Array.from({ length: 4 }).map((_, index) => <div key={index} className="card h-36 animate-pulse bg-ink-100/60 dark:bg-slate-800" />) : cards.map(({ label, value, trend, icon: Icon, iconClass }, index) => <article key={label} className={`metric-card card group animate-rise-in animate-delay-${index > 2 ? 2 : index}`}><div className="flex items-start justify-between"><div><p className="text-sm font-medium text-ink-500 dark:text-slate-400">{label}</p><h2 className="mt-2 text-2xl font-extrabold tracking-tight text-ink-900 dark:text-slate-100">{value}</h2></div><span className={`grid h-11 w-11 place-items-center rounded-2xl ${iconClass} transition-transform duration-200 group-hover:scale-110`}><Icon size={20} /></span></div><p className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-600"><ArrowUpRight size={14} /> {trend}<span className="ml-1 font-medium text-ink-500 dark:text-slate-400">vs last week</span></p></article>)}</section>
 
-        <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar">
-          <SidebarItem icon={<Home size={18} />} label="Dashboard" active={page === "dashboard"} onClick={() => setPage("dashboard")} />
-          
-          <div className="px-4">
-            <div onClick={() => setFoodOpen(!foodOpen)} className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition ${["add food", "food list", "manage food"].includes(page) ? "bg-white/20" : "hover:bg-white/10"}`}>
-              <div className="flex items-center gap-3"><Utensils size={18} /><span className="text-sm font-bold">Food</span></div>
-              <span className="text-[10px]">{foodOpen ? "▲" : "▼"}</span>
-            </div>
-            {foodOpen && (
-              <div className="mt-2 space-y-1">
-                <DropdownItem label="-- Add" active={page === "add food"} onClick={() => setPage("add food")} />
-                <DropdownItem label="-- List" active={page === "food list"} onClick={() => setPage("food list")} />
-                <DropdownItem label="-- Add/Delete" active={page === "manage food"} onClick={() => setPage("manage food")} />
-              </div>
-            )}
-          </div>
+    <section className="grid grid-cols-1 gap-5 2xl:grid-cols-12"><article className="card overflow-hidden 2xl:col-span-8"><div className="flex flex-col gap-3 border-b border-ink-100 pb-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">Analytics</p><h2 className="mt-1 text-lg font-bold text-ink-900 dark:text-slate-100">Revenue performance</h2><p className="text-xs text-ink-500 dark:text-slate-400">Sales trend from the last seven days.</p></div><label className="relative inline-flex items-center self-start"><CalendarDays size={15} className="pointer-events-none absolute left-3 text-ink-500 dark:text-slate-400" /><select value={period} onChange={(event) => setPeriod(event.target.value)} className="appearance-none rounded-xl border border-ink-100 bg-ink-50 py-2 pl-9 pr-8 text-xs font-semibold text-ink-700 outline-none focus:border-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"><option>This week</option><option>This month</option><option>This quarter</option></select><ChevronDown size={14} className="pointer-events-none absolute right-2.5 text-ink-500 dark:text-slate-400" /></label></div><div className="mt-4 flex items-end justify-between"><div><p className="text-3xl font-extrabold tracking-tight text-ink-900 dark:text-slate-100">Rs. {(stats?.revenueTrend.reduce((total, value) => total + value, 0) || 0)}k</p><p className="mt-1 text-xs font-semibold text-emerald-600">+18.2% <span className="ml-1 font-medium text-ink-500 dark:text-slate-400">compared with prior period</span></p></div><div className="hidden rounded-xl bg-emerald-50 px-3 py-2 text-right sm:block dark:bg-emerald-500/10"><p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">Best day</p><p className="text-sm font-bold text-emerald-800 dark:text-emerald-200">Sunday · Rs. 32k</p></div></div><div className="overflow-x-auto"><SalesChart values={stats?.revenueTrend || [12, 19, 14, 22, 28, 24, 32]} /></div></article>
+      <article className="card 2xl:col-span-4"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">Order health</p><h2 className="mt-1 text-lg font-bold text-ink-900 dark:text-slate-100">Fulfilment status</h2></div><span className="grid h-10 w-10 place-items-center rounded-xl bg-primary-50 text-primary"><LayoutDashboard size={18} /></span></div><div className="my-5 flex items-center gap-5"><div className="relative grid h-28 w-28 shrink-0 place-items-center rounded-full" style={{ background: `conic-gradient(#10b981 0 ${(orderSplit.delivered / 5) * 360}deg, #ff6e4a ${(orderSplit.delivered / 5) * 360}deg ${((orderSplit.delivered + orderSplit.active) / 5) * 360}deg, #f3f0ee ${((orderSplit.delivered + orderSplit.active) / 5) * 360}deg 360deg)` }}><div className="grid h-[86px] w-[86px] place-items-center rounded-full bg-white text-center dark:bg-slate-900"><span><strong className="block text-xl text-ink-900 dark:text-slate-100">{stats?.recentOrders.length || 0}</strong><small className="text-[10px] font-semibold uppercase text-ink-500 dark:text-slate-400">Orders</small></span></div></div><div className="space-y-3 text-sm"><p className="flex items-center justify-between gap-5"><span className="flex items-center gap-2 text-ink-600 dark:text-slate-300"><i className="h-2 w-2 rounded-full bg-emerald-500" /> Delivered</span><b>{orderSplit.delivered}</b></p><p className="flex items-center justify-between gap-5"><span className="flex items-center gap-2 text-ink-600 dark:text-slate-300"><i className="h-2 w-2 rounded-full bg-primary" /> In progress</span><b>{orderSplit.active}</b></p><p className="flex items-center justify-between gap-5"><span className="flex items-center gap-2 text-ink-600 dark:text-slate-300"><i className="h-2 w-2 rounded-full bg-ink-300" /> Cancelled</span><b>{orderSplit.cancelled}</b></p></div></div><Link to="/orders" className="flex items-center justify-between rounded-xl bg-ink-50 px-4 py-3 text-sm font-bold text-ink-700 transition hover:bg-primary-50 hover:text-primary dark:bg-slate-800 dark:text-slate-200"><span>Open order board</span><ArrowUpRight size={16} /></Link></article></section>
 
-          <div className="px-4">
-            <div onClick={() => setOrdersOpen(!ordersOpen)} className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition ${["orders", "order details"].includes(page) ? "bg-white/20" : "hover:bg-white/10"}`}>
-              <div className="flex items-center gap-3"><ShoppingCart size={18} /><span className="text-sm font-bold">Orders</span></div>
-              <span className="text-[10px]">{ordersOpen ? "▲" : "▼"}</span>
-            </div>
-            {ordersOpen && (
-              <div className="mt-2 space-y-1">
-                <DropdownItem label="-- Status" active={page === "orders"} onClick={() => setPage("orders")} />
-                <DropdownItem label="-- Details" active={page === "order details"} onClick={() => setPage("order details")} />
-              </div>
-            )}
-          </div>
-
-          <SidebarItem icon={<Users size={18} />} label="Customers" active={page === "customers"} onClick={() => setPage("customers")} />
-          <SidebarItem icon={<User size={18} />} label="My Profile" active={page === "admin profile"} onClick={() => setPage("admin profile")}/>
-          <SidebarItem icon={<Settings size={18} />} label="Settings" active={page === "settings"} onClick={() => setPage("settings")} />
-        </nav>
-
-        <div className="p-6">
-          <button onClick={() => setShowLogoutModal(true)} className="flex items-center gap-2 text-sm font-bold opacity-90 hover:opacity-100 transition-all">
-            <LogOut size={18} /> Logout
-          </button>
-        </div>
-      </aside>
-
-      {/* --- MAIN CONTENT --- */}
-      <div className="flex-1 flex flex-col overflow-hidden" onClick={() => profileOpen && setProfileOpen(false)}>
-        
-        <header className="bg-white p-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-50 shrink-0">
-          <div className="flex items-center gap-3">
-            <Menu className="md:hidden" />
-            <h2 className="text-xl font-black text-gray-800 tracking-tight capitalize">{page}</h2>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {page === "dashboard" && (
-              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
-                <input className="pl-10 pr-4 py-2 border border-gray-100 bg-gray-50 rounded-xl focus:bg-white w-64" placeholder="Search here..." />
-              </div>
-            )}
-            <Bell className="text-gray-400 cursor-pointer" size={20} />
-            
-            {/* PROFILE DROPDOWN CONTAINER */}
-            <div className="relative">
-              <div 
-                onClick={(e) => { e.stopPropagation(); setProfileOpen(!profileOpen); }}
-                className="w-9 h-9 rounded-full bg-gradient-to-r from-orange-500 to-red-500 shadow-md cursor-pointer hover:scale-105 transition-transform" 
-              />
-              
-              {profileOpen && (
-                <div className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 animate-in fade-in zoom-in-95 duration-200 z-[60]">
-                  <button onClick={() => setPage("admin profile")} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                    <User size={16} className="text-orange-500" /> Profile
-                  </button>
-                  <button onClick={() => setPage("settings")} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                    <Edit size={16} className="text-blue-500" /> Edit
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                    <HelpCircle size={16} className="text-green-500" /> Help
-                  </button>
-                  <div className="h-px bg-gray-100 my-1 mx-2" />
-                  <button onClick={() => setShowLogoutModal(true)} className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors">
-                    <LogOut size={16} /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-50 custom-scrollbar">
-          <div className="max-w-7xl mx-auto">
-            {page === "dashboard" && <DashboardHome />}
-            {page === "add food" && <Addfood />}
-            {page === "food list" && <ListFood />}
-            {page === "customers" && <Customers />}
-            {page === "manage food" && <ManageFood />}
-            {page === "orders" && <Orders />}
-            {page === "order details" && <OrderDetails />}
-            {page === "settings" && <SettingsPage />}
-            {page === "admin profile" && <ProfilePage setPage={setPage} />}
-          </div>
-          <div className="h-10"></div>
-        </main>
-      </div>
-    </div>
-  );
-}
-
-// SidebarItem & DropdownItem (Same as your provided code)
-function SidebarItem({ icon, label, active, onClick }) {
-  return (
-    <div className="relative py-0.5">
-      <div onClick={onClick} className={`flex items-center gap-3 p-3 mx-4 cursor-pointer transition-all duration-200 ${active ? "bg-gray-50 text-orange-600 rounded-l-2xl mr-0 shadow-[-10px_0_0_0_#f8fafc] z-10" : "text-white/90 hover:bg-white/10 rounded-xl"}`}>
-        {icon}<span className="text-sm font-bold">{label}</span>
-      </div>
-      {active && <div className="absolute right-0 top-0 bottom-0 w-2 bg-gray-50 z-20" />}
-    </div>
-  );
-}
-
-function DropdownItem({ label, active, onClick }) {
-  return (
-    <div onClick={onClick} className={`ml-10 p-2 mr-4 rounded-lg cursor-pointer text-sm font-bold transition-all ${active ? "bg-gray-50 text-orange-600 rounded-l-xl relative" : "text-white/70 hover:text-white hover:bg-white/10"}`}>
-      {label}{active && <div className="absolute right-0 top-0 bottom-0 w-2 bg-gray-50 translate-x-4" />}
-    </div>
-  );
-}
-
-// DashboardHome (Same as your provided code)
-function DashboardHome() {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    API.get("/api/adminDb/dashboard", { headers: { Authorization: `Bearer ${token}` } })
-    .then((res) => setData(res.data)).catch((err) => console.log(err));
-  }, []);
-
-  if (!data) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-orange-500"></div>
-    </div>
-  );
-
-  return (
-    <div className="animate-in fade-in duration-500 space-y-6">
-      <div className="grid md:grid-cols-4 gap-6">
-        <StatCard title="Total Orders" value={data.totalOrders} icon={<ShoppingBag />} />
-        <StatCard title="Revenue" value={`₹${data.totalRevenue}`} icon={<DollarSign />} />
-        <StatCard title="Customers" value={data.totalUsers} icon={<Users />} />
-        <StatCard title="Pending" value={data.pendingOrders} icon={<ClipboardList />} />
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ title, value, icon }) {
-  return (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between">
-      <div><p className="text-gray-400 text-[10px] font-black uppercase mb-1">{title}</p><h2 className="text-2xl font-black text-gray-800">{value}</h2></div>
-      <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">{icon}</div>
-    </div>
-  );
+    <section className="grid grid-cols-1 gap-5 2xl:grid-cols-12"><article className="card overflow-x-auto 2xl:col-span-8"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-lg font-bold dark:text-slate-100">Order activity</h2><p className="text-xs text-ink-500 dark:text-slate-400">Latest orders from your restaurant.</p></div><Link to="/orders" className="text-sm font-bold text-primary hover:underline">See all orders</Link></div><table className="w-full min-w-[600px] text-sm"><thead><tr className="border-b border-ink-100 text-left text-xs font-semibold uppercase tracking-wide text-ink-500 dark:border-slate-800 dark:text-slate-400"><th className="pb-3">Order</th><th className="pb-3">Customer</th><th className="pb-3">Amount</th><th className="pb-3">Payment</th><th className="pb-3 text-right">Status</th></tr></thead><tbody>{stats?.recentOrders.map((order) => <tr key={order.id} className="table-row-hover border-b border-ink-100/70 last:border-0 dark:border-slate-800"><td className="py-3.5 font-bold text-ink-800 dark:text-slate-100">{order.id}</td><td className="py-3.5 text-ink-600 dark:text-slate-300">{order.customer}</td><td className="py-3.5 font-semibold text-ink-800 dark:text-slate-100">Rs. {order.amount}</td><td className="py-3.5 text-ink-500 dark:text-slate-400">{order.payment || "UPI"}</td><td className="py-3.5 text-right"><span className={`badge ${statusStyles[order.status]}`}>{order.status}</span></td></tr>)}</tbody></table></article>
+      <aside className="card 2xl:col-span-4"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.14em] text-primary">Today</p><h2 className="mt-1 text-lg font-bold text-ink-900 dark:text-slate-100">Operations feed</h2></div><BellRing size={19} className="text-primary" /></div><div className="mt-5 space-y-4"><div className="feed-item"><span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600"><CreditCard size={16} /></span><p><b>Payment settled</b><small>Rs. 18,420 received via online payments</small></p></div><div className="feed-item"><span className="grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-amber-600"><Clock3 size={16} /></span><p><b>{stats?.activeOrders || 0} orders in progress</b><small>Kitchen queue needs an update</small></p></div><div className="feed-item"><span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-50 text-sky-600"><Users size={16} /></span><p><b>Customer growth is healthy</b><small>4.6% more returning customers this week</small></p></div></div><Link to="/customers" className="mt-5 inline-flex text-sm font-bold text-primary hover:underline">View customers <ArrowUpRight size={15} className="ml-1" /></Link></aside></section>
+  </div>;
 }

@@ -1,150 +1,26 @@
-import React, { useState, useMemo } from "react";
-import { MoreVertical, Search, Plus, Trash2, Edit3, Eye, Download, ChevronRight } from "lucide-react";
-
-const customersData = [
-  { id: "#C-004560", name: "Rahul Sharma", join: "27 March 2026", location: "Raipur", spent: 78.92, status: "Active" },
-  { id: "#C-004561", name: "Aman Verma", join: "28 March 2026", location: "Bilaspur", spent: 120.5, status: "VIP" },
-  { id: "#C-004562", name: "Priya Singh", join: "29 March 2026", location: "Durg", spent: 16.87, status: "Active" }
-];
+import { useEffect, useMemo, useState } from "react";
+import { Ban, CheckCircle, CheckCircle2, ChevronDown, Pencil, Search, Trash2, X } from "lucide-react";
+import { deleteCustomer, getCustomers, toggleCustomerStatus, updateCustomer } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 export default function Customers() {
-  const [openIndex, setOpenIndex] = useState(null);
-  const [search, setSearch] = useState("");
+  const [customers, setCustomers] = useState([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(null);
+  const [deleting, setDeleting] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState("");
+  useEffect(() => { getCustomers().then((data) => { setCustomers(data); setLoading(false); }); }, []);
+  const filtered = useMemo(() => customers.filter((customer) => `${customer.name} ${customer.email} ${customer.phone}`.toLowerCase().includes(query.toLowerCase())), [customers, query]);
+  const handleToggle = async (customer) => { const updated = await toggleCustomerStatus(customer.id); setCustomers((items) => items.map((item) => item.id === updated.id ? updated : item)); };
+  const saveCustomer = async (event) => { event.preventDefault(); setSaving(true); try { const saved = await updateCustomer(editing.id, editing); setCustomers((items) => items.map((item) => item.id === saved.id ? saved : item)); setEditing(null); setNotice(`${saved.name}'s profile has been updated.`); } finally { setSaving(false); } };
+  const confirmDelete = async () => { const customer = deleting; setSaving(true); try { await deleteCustomer(customer.id); setCustomers((items) => items.filter((item) => item.id !== customer.id)); setDeleting(null); setNotice(`${customer.name} was removed from customers.`); } finally { setSaving(false); } };
 
-  const filtered = useMemo(() => 
-    customersData.filter((c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) || 
-      c.id.toLowerCase().includes(search.toLowerCase())
-    ), [search]);
-
-  return (
-    <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        
-        {/* --- HEADER BAR --- */}
-        <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/50 backdrop-blur-md sticky top-0 z-10">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">User Directory</h2>
-            <p className="text-sm text-gray-500 font-medium">Manage and monitor customer activity</p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-orange-500 transition-colors" size={18} />
-              <input
-                type="text"
-                placeholder="Search customers..."
-                className="pl-10 pr-4 py-2 bg-gray-100 border-transparent border rounded-xl text-sm focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-orange-500 outline-none w-64 transition-all"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <button className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-95 shadow-lg shadow-blue-100">
-              <Plus size={18} />
-              Add New
-            </button>
-          </div>
-        </div>
-
-        {/* --- TABLE AREA (Scrollbar Safe) --- */}
-        <div className="overflow-x-auto relative min-h-[400px]">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 text-gray-500 text-[10px] uppercase font-bold tracking-widest">
-                <th className="py-4 px-8">Client</th>
-                <th className="py-4 px-4">ID</th>
-                <th className="py-4 px-4">Location</th>
-                <th className="py-4 px-4">Revenue</th>
-                <th className="py-4 px-4">Status</th>
-                <th className="py-4 px-8 text-right">Options</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-50">
-              {filtered.map((c, index) => (
-                <tr key={c.id} className="hover:bg-blue-50/40 transition-colors group">
-                  <td className="py-5 px-8">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-orange-500 to-red-600 flex items-center justify-center text-white font-bold text-sm">
-                        {c.name.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="font-bold text-gray-900 text-sm">{c.name}</p>
-                        <p className="text-[11px] text-gray-400 font-medium">Joined {c.join}</p>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="py-5 px-4 font-mono text-xs text-gray-500">{c.id}</td>
-                  <td className="py-5 px-4 text-sm text-gray-600 font-medium">{c.location}</td>
-                  <td className="py-5 px-4 text-sm font-bold text-gray-900">${c.spent}</td>
-                  
-                  <td className="py-5 px-4">
-                    <StatusBadge status={c.status} />
-                  </td>
-
-                  {/* --- ACTION DROPDOWN FIX --- */}
-                  <td className="py-5 px-8 text-right relative">
-                    <button
-                      onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                      className={`p-2 rounded-lg transition-colors ${openIndex === index ? 'bg-gray-200 text-gray-900' : 'text-gray-400 hover:bg-gray-100'}`}
-                    >
-                      <MoreVertical size={18} />
-                    </button>
-
-                    {openIndex === index && (
-                      <>
-                        {/* Invisible Backdrop to handle clicks anywhere else */}
-                        <div className="fixed inset-0 z-[100]" onClick={() => setOpenIndex(null)} />
-                        
-                        {/* FIX: Using absolute positioning with a very high z-index.
-                           For vertical scrollbar issues, ensures it stays on top.
-                        */}
-                        <div className="absolute right-8 top-12 w-48 bg-white border border-gray-100 shadow-2xl rounded-xl py-2 z-[101] animate-in fade-in slide-in-from-top-2 duration-150">
-                          <button className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                            <Eye size={14} className="text-gray-400" /> View Details
-                          </button>
-                          <button className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                            <Edit3 size={14} className="text-gray-400" /> Edit User
-                          </button>
-                          <div className="h-px bg-gray-100 my-1 mx-2" />
-                          <button className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors">
-                            <Trash2 size={14} /> Remove Client
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* --- PAGINATION --- */}
-        <div className="px-8 py-5 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-          <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-            Showing {filtered.length} of 46 Users
-          </p>
-          <div className="flex gap-2">
-            <button className="px-4 py-1.5 border border-gray-200 rounded-lg text-xs font-bold bg-white hover:bg-gray-50 transition-all">Previous</button>
-            <button className="px-4 py-1.5 bg-orange-500 text-white rounded-lg text-xs font-bold shadow-md shadow-blue-100">Next</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const styles = {
-    Active: "bg-green-50 text-green-700 ring-green-600/20",
-    VIP: "bg-purple-50 text-purple-700 ring-purple-600/20"
-  };
-
-  return (
-    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ring-1 ring-inset ${styles[status]}`}>
-      {status}
-    </span>
-  );
+  return <div className="animate-fadeIn space-y-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-primary">Customer management</p><h1 className="page-heading mt-1">Customers</h1><p className="mt-1 text-sm text-ink-500">{customers.length} registered customers in your local workspace.</p></div><div className="relative w-full sm:w-80"><Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-500" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, email or phone..." className="input pl-10" /></div></div>
+    {notice && <div className="flex items-center justify-between rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700"><span className="flex items-center gap-2"><CheckCircle2 size={17} /> {notice}</span><button onClick={() => setNotice("")} aria-label="Dismiss message"><X size={16} /></button></div>}
+    <div className="card overflow-x-auto p-0"><table className="w-full min-w-[900px] text-sm"><thead><tr className="border-b border-ink-100 bg-ink-50/60 text-left text-xs font-semibold uppercase tracking-wide text-ink-500"><th className="px-5 py-3">Customer</th><th className="px-5 py-3">Contact</th><th className="px-5 py-3">Orders</th><th className="px-5 py-3">Joined</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-right">Actions</th></tr></thead><tbody>{loading ? Array.from({ length: 5 }).map((_, index) => <tr key={index}><td colSpan={6} className="px-5 py-5"><div className="h-7 animate-pulse rounded bg-ink-100" /></td></tr>) : filtered.map((customer) => <tr key={customer.id} className="table-row-hover border-b border-ink-100/60 last:border-0"><td className="px-5 py-3.5"><div className="flex items-center gap-3"><img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${customer.name}`} alt={customer.name} className="h-10 w-10 rounded-xl bg-primary-50" /><div><p className="font-bold text-ink-800">{customer.name}</p><p className="text-xs text-ink-500">{customer.id}</p></div></div></td><td className="px-5 py-3.5"><p className="text-ink-700">{customer.email}</p><p className="mt-0.5 text-xs text-ink-500">{customer.phone}</p></td><td className="px-5 py-3.5 font-semibold text-ink-700">{customer.orders}</td><td className="px-5 py-3.5 text-ink-500">{customer.joined}</td><td className="px-5 py-3.5"><span className={`badge ${customer.status === "Active" ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>{customer.status}</span></td><td className="px-5 py-3.5"><div className="flex items-center justify-end gap-2"><button onClick={() => setEditing({ ...customer })} className="inline-flex items-center gap-1.5 rounded-xl bg-primary-50 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary hover:text-white"><Pencil size={14} /> Edit</button><button onClick={() => handleToggle(customer)} className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition ${customer.status === "Active" ? "bg-red-50 text-red-500 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>{customer.status === "Active" ? <Ban size={14} /> : <CheckCircle size={14} />}{customer.status === "Active" ? "Block" : "Unblock"}</button><button onClick={() => setDeleting(customer)} aria-label={`Delete ${customer.name}`} className="grid h-8 w-8 place-items-center rounded-xl text-ink-500 transition hover:bg-red-50 hover:text-red-500"><Trash2 size={16} /></button></div></td></tr>)}</tbody></table>{!loading && filtered.length === 0 && <div className="py-16 text-center text-sm text-ink-500">No customers match your search.</div>}</div>
+    {editing && <div className="modal-backdrop" role="presentation" onMouseDown={() => !saving && setEditing(null)}><form onSubmit={saveCustomer} role="dialog" aria-modal="true" aria-labelledby="customer-editor-title" className="editor-dialog" onMouseDown={(event) => event.stopPropagation()}><button type="button" onClick={() => setEditing(null)} className="absolute right-4 top-4 rounded-xl p-2 text-ink-500 hover:bg-ink-100"><X size={18} /></button><p className="text-xs font-extrabold uppercase tracking-[.16em] text-primary">Customer profile</p><h2 id="customer-editor-title" className="mt-2 font-display text-2xl font-extrabold">Edit {editing.name}</h2><p className="mt-1 text-sm text-ink-500">Keep the customer record accurate and up to date.</p><div className="mt-6 grid gap-4 sm:grid-cols-2"><label><span className="label">Full name</span><input value={editing.name} onChange={(event) => setEditing({ ...editing, name: event.target.value })} required className="input" /></label><label><span className="label">Phone number</span><input value={editing.phone} onChange={(event) => setEditing({ ...editing, phone: event.target.value })} required className="input" /></label><label className="sm:col-span-2"><span className="label">Email address</span><input type="email" value={editing.email} onChange={(event) => setEditing({ ...editing, email: event.target.value })} required className="input" /></label><label><span className="label">Order count</span><input type="number" min="0" value={editing.orders} onChange={(event) => setEditing({ ...editing, orders: Number(event.target.value) })} required className="input" /></label><label><span className="label">Account status</span><span className="relative block"><select value={editing.status} onChange={(event) => setEditing({ ...editing, status: event.target.value })} className="select-enhanced input pr-9"><option>Active</option><option>Blocked</option></select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-500" /></span></label></div><div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => setEditing(null)} className="btn-secondary">Cancel</button><button type="submit" disabled={saving} className="btn-primary">{saving ? "Saving..." : "Save customer"}</button></div></form></div>}
+    <ConfirmDialog open={Boolean(deleting)} title={`Delete ${deleting?.name || "customer"}?`} message={`This will permanently delete ${deleting?.name || "this customer"} and their saved profile from the admin workspace. This cannot be undone.`} loading={saving && Boolean(deleting)} onClose={() => !saving && setDeleting(null)} onConfirm={confirmDelete} />
+  </div>;
 }

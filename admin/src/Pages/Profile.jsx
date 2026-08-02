@@ -1,156 +1,230 @@
-import React from "react";
-import { 
-  User, Mail, Shield, Calendar, MapPin, Award, 
-  Zap, Clock, Fingerprint, Edit3, ArrowUpRight, Target
-} from "lucide-react";
+import { useEffect, useState } from "react";
+import { BellRing, Camera, CheckCircle2, Clock3, Loader2, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+import { getAdminProfile, updateAdminProfile } from "../api";
+import { useTheme } from "../context/ThemeContext";
 
-export default function Profile({ setPage }) {
-  const adminData = {
-    name: "Admin User",
-    email: "admin@gmail.com",
-    role: "System Administrator",
-    joined: "January 2024",
-    location: "Raipur, India",
-    status: "Active",
-    bio: "Passionate about building scalable food delivery solutions and optimizing system performance for high-traffic applications.",
-    skills: ["System Architecture", "Security", "UI Architecture", "Database Management"]
+const defaultProfile = {
+  name: "Ananya Mehta",
+  email: "admin@foodhub.com",
+  phone: "9090909090",
+  role: "Super Admin",
+  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya",
+  bio: "Runs daily operations, monitors growth, and keeps the kitchen team aligned.",
+  location: "Indore, India",
+  timezone: "Asia/Kolkata",
+  joined: "12 Jan 2025",
+  lastLogin: "Today • 09:45 AM",
+  preferences: {
+    liveUpdates: true,
+    orderAlerts: true,
+    weeklyReports: false,
+  },
+};
+
+export default function Profile() {
+  const { theme, toggleTheme } = useTheme();
+  const [profile, setProfile] = useState(defaultProfile);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    getAdminProfile().then((data) => {
+      setProfile({
+        ...defaultProfile,
+        ...data,
+        preferences: { ...defaultProfile.preferences, ...(data.preferences || {}) },
+      });
+      setLoading(false);
+    });
+  }, []);
+
+  const handleChange = (event) => setProfile({ ...profile, [event.target.name]: event.target.value });
+
+  const handleToggle = (key) =>
+    setProfile((current) => ({
+      ...current,
+      preferences: { ...current.preferences, [key]: !current.preferences[key] },
+    }));
+
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setProfile((current) => ({ ...current, avatar: String(reader.result) }));
+    reader.readAsDataURL(file);
   };
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setSaving(true);
+    setSaved(false);
+    await updateAdminProfile({ ...profile, preferences: profile.preferences });
+    setSaving(false);
+    setSaved(true);
+  };
+
+  if (loading) {
+    return <div className="card h-64 max-w-5xl animate-pulse bg-ink-100/60 dark:bg-slate-800" />;
+  }
+
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="max-w-5xl mx-auto space-y-6">
-        
-        {/* --- HERO SECTION --- */}
-        <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-          <div className="h-40 bg-gradient-to-r from-orange-500 via-orange-600 to-red-600 relative overflow-hidden">
-             {/* Subtle noise/mesh pattern for professional texture */}
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-          </div>
-          
-          <div className="px-8 pb-8">
-            <div className="relative flex flex-col md:flex-row justify-between items-start md:items-end -mt-12 gap-6">
+    <div className="max-w-5xl animate-fadeIn space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">Admin workspace</p>
+          <h1 className="page-heading mt-1">Profile & controls</h1>
+          <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">Manage your identity, preferences, and daily admin access in one place.</p>
+        </div>
+        <button type="button" onClick={toggleTheme} className="btn-secondary w-fit">
+          {theme === "dark" ? <Sparkles size={16} /> : <Sparkles size={16} />}
+          {theme === "dark" ? "Switch to light" : "Switch to dark"}
+        </button>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <form onSubmit={handleSubmit} className="card space-y-6">
+          <div className="flex flex-col gap-5 rounded-2xl border border-ink-100/80 bg-ink-50/70 p-4 dark:border-slate-800 dark:bg-slate-800/70 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-32 h-32 rounded-[1.8rem] bg-white p-1.5 shadow-2xl">
-                  <div className="w-full h-full rounded-[1.5rem] bg-slate-50 flex items-center justify-center text-slate-300 border border-slate-100">
-                    <User size={60} strokeWidth={1.2} />
-                  </div>
-                </div>
-                <div className="absolute bottom-1 right-1 w-7 h-7 bg-green-500 border-4 border-white rounded-full shadow-lg"></div>
+                <img src={profile.avatar} alt="avatar" className="h-20 w-20 rounded-2xl object-cover ring-2 ring-primary/20" />
+                <label className="absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-soft transition hover:bg-primary-600">
+                  <Camera size={14} />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+                </label>
               </div>
-
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-3xl font-black text-slate-900 tracking-tight">{adminData.name}</h1>
-                  <span className="px-2.5 py-0.5 bg-orange-100 text-orange-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-orange-200">
-                    Verified Admin
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 mt-1 text-slate-500 font-bold text-sm">
-                  <p className="flex items-center gap-1.5 text-orange-600"><Shield size={14} /> {adminData.role}</p>
-                  <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                  <p className="flex items-center gap-1.5"><MapPin size={14} /> {adminData.location}</p>
-                </div>
-              </div>
-
-              {/* Navigation to Settings */}
-              <button 
-                onClick={() => setPage("settings")}
-                className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black hover:bg-black transition-all active:scale-95 shadow-lg shadow-slate-200"
-              >
-                <Edit3 size={16} /> Edit Profile
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* --- LEFT COLUMN --- */}
-          <div className="lg:col-span-2 space-y-6">
-            
-            <div className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm relative overflow-hidden">
-              <div className="absolute -right-4 -top-4 text-slate-50 opacity-[0.03]">
-                <Fingerprint size={150} />
-              </div>
-              <h3 className="text-base font-black text-slate-800 mb-3 flex items-center gap-2">
-                <Target size={18} className="text-orange-500" /> Executive Summary
-              </h3>
-              <p className="text-slate-500 leading-relaxed font-medium text-sm">
-                {adminData.bio}
-              </p>
-              
-              <div className="mt-5 flex flex-wrap gap-2">
-                {adminData.skills.map((skill, index) => (
-                  <span key={index} className="px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-100 hover:border-orange-200 transition-colors cursor-default">
-                    {skill}
-                  </span>
-                ))}
+              <div>
+                <p className="font-semibold text-ink-900 dark:text-slate-100">{profile.name}</p>
+                <p className="text-sm text-ink-500 dark:text-slate-400">{profile.role}</p>
+                <p className="mt-1 text-xs text-primary">{profile.location}</p>
               </div>
             </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <InfoItem icon={<Mail className="text-orange-500" size={18}/>} label="Email" value={adminData.email} />
-              <InfoItem icon={<Calendar className="text-blue-500" size={18}/>} label="Member Since" value={adminData.joined} />
-              <InfoItem icon={<Clock className="text-purple-500" size={18}/>} label="Activity" value="Online Now" />
-              <InfoItem icon={<Award className="text-yellow-500" size={18}/>} label="Standing" value="Super Admin" />
+            <div className="rounded-2xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-slate-900">
+              <p className="font-semibold text-ink-900 dark:text-slate-100">Last login</p>
+              <p className="text-ink-500 dark:text-slate-400">{profile.lastLogin}</p>
             </div>
           </div>
 
-          {/* --- RIGHT COLUMN --- */}
-          <div className="space-y-6">
-            {/* System Security Bento */}
-            <div className="bg-slate-900 text-white p-7 rounded-[2rem] shadow-xl relative overflow-hidden group">
-               <Zap className="absolute -right-4 -top-4 w-20 h-20 text-white/5 group-hover:rotate-12 transition-transform duration-500" />
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Security Health</p>
-               <h3 className="text-3xl font-black mb-4 tracking-tighter">98.4<span className="text-sm text-orange-400 font-medium">%</span></h3>
-               <div className="w-full bg-slate-800 h-1.5 rounded-full mb-6">
-                  <div className="bg-gradient-to-r from-orange-400 to-red-500 h-full w-[98%] rounded-full"></div>
-               </div>
-               <button className="w-full py-2.5 bg-white/10 hover:bg-white/15 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/5 flex items-center justify-center gap-2">
-                 Compliance Audit <ArrowUpRight size={12} />
-               </button>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div>
+              <label className="label">Full Name</label>
+              <input name="name" value={profile.name} onChange={handleChange} className="input" />
             </div>
+            <div>
+              <label className="label">Email</label>
+              <input type="email" name="email" value={profile.email} onChange={handleChange} className="input" />
+            </div>
+            <div>
+              <label className="label">Phone</label>
+              <input name="phone" value={profile.phone} onChange={handleChange} className="input" />
+            </div>
+            <div>
+              <label className="label">Role</label>
+              <input name="role" value={profile.role} disabled className="input cursor-not-allowed opacity-60" />
+            </div>
+            <div>
+              <label className="label">Location</label>
+              <input name="location" value={profile.location} onChange={handleChange} className="input" />
+            </div>
+            <div>
+              <label className="label">Timezone</label>
+              <input name="timezone" value={profile.timezone} onChange={handleChange} className="input" />
+            </div>
+          </div>
 
-            {/* Platform Impact Stats */}
-            <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <h3 className="text-xs font-black text-slate-800 mb-5 tracking-widest uppercase">Performance</h3>
-              <div className="space-y-5">
-                <ImpactBar label="Uptime" value="100%" color="bg-green-500" />
-                <ImpactBar label="Resolution" value="82%" color="bg-orange-500" />
-                <ImpactBar label="Capacity" value="64%" color="bg-blue-500" />
+          <div>
+            <label className="label">Short bio</label>
+            <textarea name="bio" rows="3" value={profile.bio} onChange={handleChange} className="input resize-none" />
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              { label: "Joined", value: profile.joined, icon: Clock3 },
+              { label: "Location", value: profile.location, icon: MapPin },
+              { label: "Security", value: "Protected", icon: ShieldCheck },
+            ].map(({ label, value, icon: Icon }) => (
+              <div key={label} className="rounded-2xl border border-ink-100 bg-ink-50 px-3 py-3 dark:border-slate-800 dark:bg-slate-800/70">
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-700 dark:text-slate-200">
+                  <Icon size={15} className="text-primary" /> {label}
+                </div>
+                <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">{value}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-ink-900 dark:text-slate-100">Preferences</p>
+                <p className="text-sm text-ink-500 dark:text-slate-400">Choose how your admin series should stay updated.</p>
+              </div>
+            </div>
+            {[
+              { key: "liveUpdates", label: "Live order updates", desc: "Real-time status updates for current operations" },
+              { key: "orderAlerts", label: "Order alerts", desc: "Instant alerts for important order activity" },
+              { key: "weeklyReports", label: "Weekly reports", desc: "Weekly summaries in your inbox" },
+            ].map(({ key, label, desc }) => (
+              <div key={key} className="flex items-center justify-between rounded-2xl border border-ink-100 px-3 py-3 dark:border-slate-800">
+                <div>
+                  <p className="text-sm font-semibold text-ink-800 dark:text-slate-200">{label}</p>
+                  <p className="text-xs text-ink-500 dark:text-slate-400">{desc}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleToggle(key)}
+                  className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-all duration-200 ${profile.preferences[key] ? "bg-primary shadow-[0_0_0_4px_rgba(255,110,74,0.14)]" : "bg-ink-200 dark:bg-slate-700"}`}
+                >
+                  <span className={`h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${profile.preferences[key] ? "translate-x-5" : "translate-x-0"}`} />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {saved && (
+            <p className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              <CheckCircle2 size={16} /> Profile updated successfully.
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-3">
+            <button type="submit" disabled={saving} className="btn-primary px-6">
+              {saving && <Loader2 size={17} className="animate-spin" />}
+              {saving ? "Saving..." : "Save profile"}
+            </button>
+            <button type="button" onClick={() => setSaved(false)} className="btn-secondary">
+              Clear notice
+            </button>
+          </div>
+        </form>
+
+        <aside className="space-y-6">
+          <div className="card">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+              <ShieldCheck size={16} /> Security overview
+            </div>
+            <ul className="mt-4 space-y-3 text-sm text-ink-600 dark:text-slate-300">
+              <li className="rounded-xl bg-ink-50 px-3 py-2 dark:bg-slate-800">Two-step verification is enabled.</li>
+              <li className="rounded-xl bg-ink-50 px-3 py-2 dark:bg-slate-800">Login alerts are active for high-risk sign-ins.</li>
+              <li className="rounded-xl bg-ink-50 px-3 py-2 dark:bg-slate-800">Session timeout is set to 30 minutes.</li>
+            </ul>
+          </div>
+
+          <div className="card">
+            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+              <BellRing size={16} /> Daily focus
+            </div>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-2xl border border-ink-100 p-3 dark:border-slate-800">
+                <p className="text-sm font-semibold text-ink-900 dark:text-slate-100">3 urgent orders</p>
+                <p className="text-xs text-ink-500 dark:text-slate-400">Need kitchen follow-up in 20 minutes.</p>
+              </div>
+              <div className="rounded-2xl border border-ink-100 p-3 dark:border-slate-800">
+                <p className="text-sm font-semibold text-ink-900 dark:text-slate-100">1 stock review</p>
+                <p className="text-xs text-ink-500 dark:text-slate-400">Chicken Biryani is below threshold.</p>
               </div>
             </div>
           </div>
-        </div>
-
-      </div>
-      <div className="h-6"></div>
-    </div>
-  );
-}
-
-function InfoItem({ icon, label, value }) {
-  return (
-    <div className="group flex items-center gap-4 p-4 bg-white rounded-[1.2rem] border border-slate-100 transition-all hover:border-orange-100 hover:shadow-sm">
-      <div className="p-2.5 bg-slate-50 rounded-xl group-hover:bg-orange-50 transition-colors">
-        {icon}
-      </div>
-      <div>
-        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-        <p className="text-xs font-black text-slate-700">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function ImpactBar({ label, value, color }) {
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest">
-        <span>{label}</span>
-        <span className="text-slate-800">{value}</span>
-      </div>
-      <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: value }}></div>
+        </aside>
       </div>
     </div>
   );
