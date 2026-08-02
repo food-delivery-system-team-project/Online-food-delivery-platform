@@ -1,181 +1,104 @@
-import React, { useEffect, useState } from "react";
-import { MoreVertical } from "lucide-react";
-import API from "../api";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Eye } from "lucide-react";
+import { getOrders } from "../api";
+
+const statusStyles = {
+  Delivered: "bg-green-50 text-green-600",
+  Preparing: "bg-amber-50 text-amber-600",
+  "On the way": "bg-blue-50 text-blue-600",
+  Cancelled: "bg-red-50 text-red-600",
+};
+
+const filters = ["All", "Preparing", "On the way", "Delivered", "Cancelled"];
 
 export default function Orders() {
-  const [orders,setOrders] = useState([])
-  const [open, setOpen] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [filter, setFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchOrders(); 
-  }, [])
+    getOrders().then((data) => {
+      setOrders(data);
+      setLoading(false);
+    });
+  }, []);
 
-  const fetchOrders = async () => {
-    try {
-      const res = await API.get('/api/admin/all')
-      setOrders(res.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const formatStatus = (status) =>{
-    if (status === "pending") return "New Order";
-    if (status === "onway") return "On Delivery";
-    if (status === "delivered") return "Delivered";
-    return status;
-  }
-
-  const updateStatus = async (id,status) =>{
-    try {
-      await API.put(`/api/admin/${id}`, {status});
-      fetchOrders();
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  
+  const filtered = useMemo(
+    () => (filter === "All" ? orders : orders.filter((o) => o.status === filter)),
+    [orders, filter]
+  );
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border p-6">
-
-      {/* Top */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800">
-            Your Orders
-          </h2>
-          <p className="text-gray-500 text-sm">
-            This is your order list data
-          </p>
-        </div>
-
-        <div className="flex gap-3">
-          <select className="border px-4 py-2 rounded-lg">
-            <option>All Status</option>
-            <option>New Order</option>
-            <option>On Delivery</option>
-            <option>Delivered</option>
-          </select>
-
-          <input
-            type="date"
-            className="border px-4 py-2 rounded-lg"
-          />
-        </div>
+    <div className="animate-fadeIn space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Orders</h1>
+        <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">Saare orders yaha track karo.</p>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto h-110">
-        <table className="w-full text-sm">
-          
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {filters.map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors duration-150 ${
+              filter === f
+                ? "bg-primary text-white shadow-soft"
+                : "border border-ink-100 bg-white text-ink-700 hover:border-primary/40 hover:text-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-primary/40 dark:hover:text-primary"
+            }`}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      <div className="card overflow-x-auto p-0">
+        <table className="w-full text-sm min-w-[700px]">
           <thead>
-            <tr className="bg-orange-500 text-white">
-              <th className="py-3 px-4 text-left">Order ID</th>
-              <th className="text-left">Date</th>
-              <th className="text-left">Customer Name</th>
-              <th className="text-left">Order Items</th>
-              <th className="text-left">Location</th>
-              <th className="text-left">Amount</th>
-              <th className="text-left">Status</th>
-              <th className="text-left"></th>
+            <tr className="border-b border-ink-100 bg-ink-50/60 text-left text-ink-600 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300">
+              <th className="py-3 px-5 font-medium">Order ID</th>
+              <th className="py-3 px-5 font-medium">Customer</th>
+              <th className="py-3 px-5 font-medium">Date</th>
+              <th className="py-3 px-5 font-medium">Amount</th>
+              <th className="py-3 px-5 font-medium">Status</th>
+              <th className="py-3 px-5 font-medium text-right">Action</th>
             </tr>
           </thead>
-
           <tbody>
-            {orders.map((order, index) => (
-              <tr key={index} className="border-b hover:bg-gray-50">
-                
-                <td className="py-4 px-4 font-medium">
-                  {order._id.slice(-6)}
-                </td>
-
-                <td className="text-gray-500">
-                  {new Date(order.createdAt).toLocaleString()}
-                </td>
-
-                <td className="font-medium">
-                  {order.user?.name}
-                </td>
-
-                <td className="font-medium">
-                  {order.items.map((item)=> item.name).join(", ")}
-                </td>
-
-                <td className="text-gray-500">
-                  {order.location}
-                </td>
-
-                <td className="font-semibold">
-                  ₹{order.totalAmount}
-                </td>
-
-                <td>
-                  <StatusBadge status={formatStatus(order.status)} />
-                </td>
-
-                <td className="relative">
-                  <button
-                    onClick={() =>
-                      setOpen(open === index ? null : index)
-                    }
-                  >
-                    <MoreVertical size={18} />
-                  </button>
-
-                  {open === index && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-xl border z-10">
-                      
-                      <button 
-                        onClick={()=> updateStatus(order._id, "onway")}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-50">
-                        Accept Order
-                      </button>
-
-                      <button 
-                        onClick={()=> updateStatus(order._id,"cancelled")}
-                        className="block w-full text-left px-4 py-2 hover:bg-gray-50 text-red-500">
-                        Reject Order
-                      </button>
-
-                    </div>
-                  )}
-                </td>
-
-              </tr>
-            ))}
+            {loading
+              ? Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td colSpan={6} className="px-5 py-4">
+                      <div className="h-6 rounded bg-ink-100/70 animate-pulse" />
+                    </td>
+                  </tr>
+                ))
+              : filtered.map((o) => (
+                  <tr key={o.id} className="table-row-hover border-b border-ink-100/60 last:border-0">
+                    <td className="py-3 px-5 font-medium text-ink-800 dark:text-slate-100">{o.id}</td>
+                    <td className="py-3 px-5 text-ink-700 dark:text-slate-200">{o.customer}</td>
+                    <td className="py-3 px-5 text-ink-600 dark:text-slate-300">{o.date}</td>
+                    <td className="py-3 px-5 text-ink-700 dark:text-slate-200">₹{o.amount}</td>
+                    <td className="py-3 px-5">
+                      <span className={`badge ${statusStyles[o.status]}`}>{o.status}</span>
+                    </td>
+                    <td className="py-3 px-5 text-right">
+                      <Link
+                        to={`/orders/${o.id}`}
+                        className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:underline"
+                      >
+                        <Eye size={15} /> View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
-
         </table>
+
+        {!loading && filtered.length === 0 && (
+          <div className="py-16 text-center text-ink-600 dark:text-slate-300">No orders in this category.</div>
+        )}
       </div>
-
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <p className="text-sm text-gray-500">
-          Showing 1-{orders.length} orders
-        </p>
-
-        <div className="flex gap-2">
-          <button className="px-3 py-1 border rounded">1</button>
-          <button className="px-3 py-1 border rounded">2</button>
-          <button className="px-3 py-1 border rounded">3</button>
-        </div>
-      </div>
-
     </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const styles = {
-    "New Order": "bg-red-100 text-red-500",
-    "On Delivery": "bg-blue-100 text-blue-500",
-    Delivered: "bg-green-100 text-green-500"
-  };
-
-  return (
-    <span className={`px-3 py-1 rounded-lg text-xs ${styles[status]}`}>
-      {status}
-    </span>
   );
 }

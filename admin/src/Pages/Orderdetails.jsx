@@ -1,172 +1,121 @@
-import React, { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { ArrowLeft, MapPin, Phone, CreditCard, Loader2, CheckCircle2 } from "lucide-react";
+import { getOrderById, updateOrderStatus } from "../api";
 
-const orderItems = [
-  {
-    name: "Burger Combo",
-    qty: 2,
-    price: 120,
-  },
-  {
-    name: "Pizza",
-    qty: 1,
-    price: 250,
-  },
-  {
-    name: "Cold Drink",
-    qty: 3,
-    price: 50,
-  },
-];
+const statusOptions = ["Preparing", "On the way", "Delivered", "Cancelled"];
 
 export default function Orderdetails() {
-  const [status, setStatus] = useState("On Delivery");
+  const { id } = useParams();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    getOrderById(id).then((data) => {
+      setOrder(data);
+      setLoading(false);
+    });
+  }, [id]);
+
+  const handleStatusChange = async (status) => {
+    setOrder((prev) => ({ ...prev, status }));
+    setSaving(true);
+    setSaved(false);
+    await updateOrderStatus(id, status);
+    setSaving(false);
+    setSaved(true);
+  };
+
+  if (loading) {
+    return <div className="card h-64 animate-pulse bg-ink-100/60" />;
+  }
+
+  if (!order) {
+    return <div className="card text-center py-16 text-ink-500">Order not found.</div>;
+  }
 
   return (
-    <div className="grid md:grid-cols-3 gap-6">
-      
-      {/* LEFT SIDE */}
-      <div className="space-y-6">
-        
-        {/* Customer Card */}
-        <div className="bg-white p-6 rounded-2xl shadow border">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-white flex items-center justify-center text-xl">
-              R
-            </div>
-            <div>
-              <h3 className="font-bold">Rahul Sharma</h3>
-              <p className="text-sm text-gray-500">Customer</p>
-            </div>
-          </div>
-        </div>
+    <div className="animate-fadeIn space-y-6 max-w-4xl">
+      <Link to="/orders" className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-primary">
+        <ArrowLeft size={16} /> Back to orders
+      </Link>
 
-        {/* Order Note */}
-        <div className="bg-orange-50 p-5 rounded-2xl">
-          <h4 className="font-semibold mb-2">Order Note</h4>
-          <p className="text-sm text-gray-600">
-            Please deliver fast and make it less spicy.
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">{order.id}</h1>
+          <p className="text-ink-500 text-sm mt-1">Placed on {order.date}</p>
+        </div>
+        {saved && (
+          <p className="flex items-center gap-1.5 text-sm text-green-600">
+            <CheckCircle2 size={16} /> Status updated
           </p>
-        </div>
-
-        {/* Delivery Info */}
-        <div className="bg-white p-5 rounded-2xl shadow border">
-          <h4 className="font-semibold mb-2">Delivery Address</h4>
-          <p className="text-sm text-gray-600">
-            Raipur, Chhattisgarh, India
-          </p>
-        </div>
-
-        {/* Timeline */}
-        <div className="bg-white p-5 rounded-2xl shadow border">
-          <h4 className="font-semibold mb-4">Order Timeline</h4>
-
-          <div className="space-y-4 text-sm">
-            <Timeline text="Order Created" />
-            <Timeline text="Payment Success" />
-            <Timeline text="On Delivery" active />
-            <Timeline text="Delivered" />
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* RIGHT SIDE */}
-      <div className="md:col-span-2 space-y-6">
-
-        {/* Top Actions */}
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">
-            Order #ORD001
-          </h2>
-
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="border px-4 py-2 rounded-lg focus:ring-2 focus:ring-orange-400"
-          >
-            <option>Pending</option>
-            <option>Preparing</option>
-            <option>On Delivery</option>
-            <option>Delivered</option>
-            <option>Cancelled</option>
-          </select>
-        </div>
-
-        {/* Items Table */}
-        <div className="bg-white rounded-2xl shadow border p-5">
-          <h3 className="font-semibold mb-4">Order Items</h3>
-
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-gray-500 text-left">
-                <th className="pb-2">Item</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th></th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {orderItems.map((item, i) => (
-                <tr key={i} className="border-b">
-                  <td className="py-3">{item.name}</td>
-                  <td>{item.qty}</td>
-                  <td>₹{item.price}</td>
-                  <td>₹{item.qty * item.price}</td>
-                  <td>
-                    <Trash2 size={16} className="text-red-500 cursor-pointer" />
-                  </td>
-                </tr>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="card">
+            <h3 className="font-semibold mb-4">Items</h3>
+            <div className="divide-y divide-ink-100">
+              {order.items.map((item, i) => (
+                <div key={i} className="flex items-center justify-between py-3">
+                  <div>
+                    <p className="font-medium text-ink-800">{item.name}</p>
+                    <p className="text-xs text-ink-500">Qty: {item.qty}</p>
+                  </div>
+                  <p className="font-medium text-ink-700">₹{item.price * item.qty}</p>
+                </div>
               ))}
-            </tbody>
-          </table>
-
-          {/* Total */}
-          <div className="flex justify-end mt-4 font-semibold">
-            Total: ₹
-            {orderItems.reduce(
-              (sum, item) => sum + item.qty * item.price,
-              0
-            )}
-          </div>
-        </div>
-
-        {/* Delivery Person */}
-        <div className="bg-white p-5 rounded-2xl shadow border">
-          <h3 className="font-semibold mb-3">Delivery Person</h3>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Ramesh Kumar</p>
-              <p className="text-sm text-gray-500">
-                Phone: +91 9876543210
-              </p>
             </div>
+            <div className="flex items-center justify-between pt-4 mt-2 border-t border-ink-100">
+              <p className="font-semibold text-ink-900">Total</p>
+              <p className="font-bold text-primary text-lg">₹{order.amount}</p>
+            </div>
+          </div>
 
-            <div className="text-sm text-gray-600">
-              ETA: 15 mins
+          <div className="card">
+            <h3 className="font-semibold mb-4">Update Status</h3>
+            <div className="flex flex-wrap gap-2">
+              {statusOptions.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleStatusChange(s)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-150 ${
+                    order.status === s
+                      ? "bg-primary text-white shadow-soft"
+                      : "bg-ink-50 text-ink-600 hover:bg-primary-50 hover:text-primary"
+                  }`}
+                >
+                  {saving && order.status === s ? <Loader2 size={14} className="animate-spin inline mr-1" /> : null}
+                  {s}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
+        <div className="space-y-6">
+          <div className="card">
+            <h3 className="font-semibold mb-4">Customer</h3>
+            <p className="font-medium text-ink-800">{order.customer}</p>
+            <div className="flex items-center gap-2 text-sm text-ink-500 mt-3">
+              <Phone size={15} /> {order.phone}
+            </div>
+            <div className="flex items-start gap-2 text-sm text-ink-500 mt-2">
+              <MapPin size={15} className="mt-0.5 shrink-0" /> {order.address}
+            </div>
+          </div>
+
+          <div className="card">
+            <h3 className="font-semibold mb-4">Payment</h3>
+            <div className="flex items-center gap-2 text-sm text-ink-600">
+              <CreditCard size={15} /> {order.payment}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
-
-/* Timeline Component */
-function Timeline({ text, active }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div
-        className={`w-3 h-3 rounded-full ${
-          active
-            ? "bg-orange-500"
-            : "bg-gray-300"
-        }`}
-      />
-      <p className="text-gray-600">{text}</p>
     </div>
   );
 }
