@@ -4,6 +4,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const { connectRadis } = require("./config/redis");
 
 const connectDB = require("./config/db");
@@ -17,7 +18,7 @@ const adminDbRoutes = require("./routes/adminDbRoutes");
 const authRoutes = require("./routes/authRoutes");
 const favoritesRoutes = require("./routes/favoriteFoodRoutes");
 
-const { initSocket } = require("./sockets/socket"); // 
+const { initSocket } = require("./sockets/socket"); //
 
 connectRadis();
 const { globalLimiter } = require("./middleware/rateLImiter");
@@ -26,8 +27,27 @@ const app = express();
 
 connectDB();
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.ADMIN_URL,
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
+app.use(cookieParser());
 app.use(globalLimiter);
 
 const server = http.createServer(app);

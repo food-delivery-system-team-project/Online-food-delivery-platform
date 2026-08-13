@@ -206,6 +206,13 @@ const userLogin = async (req, res) => {
 
     user.refreshToken = refreshToken;
 
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     res.json({
       message: "login succesfully",
       token: {
@@ -244,18 +251,40 @@ const refreshToken = async (req, res) => {
 };
 
 const logout = async (req, res) => {
-  const { userId } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
 
-  const user = await User.findById(userId);
+    if (user) {
+      user.refreshToken = null;
+      await user.save();
+    }
 
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "none"
+        : "lax",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production"
+        ? "none"
+        : "lax",
+    });
+
+    res.json({
+      success: true,
+      message: "Logged out successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
-
-  user.refreshToken = null;
-  await user.save();
-
-  res.json({ message: "logged out successfully" });
 };
 
 module.exports = {
