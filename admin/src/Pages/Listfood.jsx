@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Pencil, Trash2, Eye, Boxes, Sparkles } from "lucide-react";
-import { getFoods, deleteFood } from "../api";
+import { Search, Pencil, Trash2, Sparkles } from "lucide-react";
 import ConfirmDialog from "../components/ConfirmDialog";
+
+import { getfood ,deleteFood } from "../api/foodApi";
 
 export default function Listfood() {
   const navigate = useNavigate();
@@ -13,10 +14,18 @@ export default function Listfood() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    getFoods().then((data) => {
-      setFoods(data);
-      setLoading(false);
-    });
+    const fetchFoods = async () => {
+      try {
+        const data = await getfood();
+        setFoods(data.foods);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching foods:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchFoods();
   }, []);
 
   const filtered = useMemo(
@@ -32,8 +41,8 @@ export default function Listfood() {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await deleteFood(deleting.id);
-      setFoods((prev) => prev.filter((food) => food.id !== deleting.id));
+      await deleteFood(deleting._id);
+      setFoods((prev) => prev.filter((food) => food._id !== deleting._id));
       setDeleting(null);
     } finally {
       setIsDeleting(false);
@@ -46,7 +55,7 @@ export default function Listfood() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">Your catalogue</p>
           <h1 className="page-heading mt-1">Menu items</h1>
-          <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">{foods.length} items currently on your menu.</p>
+          <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">{foods.total} items currently on your menu.</p>
         </div>
         <div className="relative w-full sm:w-72">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-500" />
@@ -66,7 +75,7 @@ export default function Listfood() {
             ))
           : filtered.map((food) => (
               <div
-                key={food.id}
+                key={food._id}
                 className="card group overflow-hidden p-0 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="relative h-40 overflow-hidden bg-ink-100">
