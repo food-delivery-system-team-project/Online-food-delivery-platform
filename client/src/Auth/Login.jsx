@@ -84,7 +84,7 @@ localStorage.setItem("token", token);
       // redirecting
   
       if (res.data.user.role === "admin") {
-        navigate("/admin");
+        window.location.href = import.meta.env.ADMIN_URL
       } else {
         navigate("/");
       }
