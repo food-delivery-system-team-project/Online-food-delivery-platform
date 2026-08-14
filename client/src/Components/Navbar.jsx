@@ -1,172 +1,217 @@
-import { CiSearch } from "react-icons/ci";
-import { IoMdLogIn } from "react-icons/io";
 import { BsBasket3 } from "react-icons/bs";
 import { GoHeart } from "react-icons/go";
 import { PiClipboardText } from "react-icons/pi";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setQuery ,setFoods ,toggleSearch } from "../Features/searchSlice";
-import { useEffect } from "react";
-import API from "../api/fetchApi";
+import { FiHome, FiUser } from "react-icons/fi";
+import { FaLocationDot } from "react-icons/fa6";
+import { IoMdLogIn } from "react-icons/io";
 
+import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
-  // cart count
-  const cartCount = useSelector((state) => state.cart.totalQuantity);
+  const location = useLocation();
 
-  const navigate = useNavigate();
-  // login user details
+  // ================= CART COUNT =================
 
-   const [user, setUser] = useState(null);
+  const cartCount = useSelector(
+    (state) => state.cart?.totalQuantity || 0
+  );
+
+  // ================= USER =================
+
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    setUser(storedUser);
+    try {
+      const storedUser = localStorage.getItem("user");
+
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.log("Error loading user:", error);
+      setUser(null);
+    }
   }, []);
 
+  // ================= ACTIVE ROUTE =================
 
-
-
-const dispatch = useDispatch();
-const results = useSelector((state) => state.search.results);
-const searchToggle = useSelector((state)=>state.search.value)
-
-
-useEffect(() => {
-  const fetchFoods = async () => {
-    const res = await API.get("/foods");
-    dispatch(setFoods(res.data.foods));
-    
+  const isActive = (path) => {
+    return location.pathname === path;
   };
 
-  fetchFoods();
-}, []);
+  // ================= NAV ITEM =================
 
+  const NavItem = ({ to, icon, label, badge }) => {
+    const active = isActive(to);
 
+    return (
+      <Link
+        to={to}
+        className="flex-1 flex justify-center"
+      >
+        <div
+          className={`
+            relative
+            flex
+            items-center
+            justify-center
+            gap-2
+            rounded-full
+            px-3
+            sm:px-5
+            py-3
+            transition-all
+            duration-300
+            ease-out
 
+            ${
+              active
+                ? "bg-[#ff6e4a] text-white shadow-lg shadow-orange-200 scale-105"
+                : "text-gray-500 hover:bg-orange-50 hover:text-[#ff6e4a]"
+            }
+          `}
+        >
+          {/* ICON */}
+
+          <span
+            className={`
+              text-xl
+              sm:text-2xl
+              transition-transform
+              duration-300
+              ${active ? "scale-110" : ""}
+            `}
+          >
+            {icon}
+          </span>
+
+          {/* LABEL */}
+
+          <span className="hidden sm:block text-sm font-semibold whitespace-nowrap">
+            {label}
+          </span>
+
+          {/* CART BADGE */}
+
+          {badge !== undefined && badge > 0 && (
+            <span
+              className="
+                absolute
+                -top-1
+                -right-1
+                min-w-[20px]
+                h-[20px]
+                px-1
+                flex
+                items-center
+                justify-center
+                rounded-full
+                bg-[#ff6e4a]
+                text-white
+                text-[10px]
+                font-bold
+                border-2
+                border-white
+              "
+            >
+              {badge > 99 ? "99+" : badge}
+            </span>
+          )}
+        </div>
+      </Link>
+    );
+  };
 
   return (
-    <> 
-    <div className='h-40 w-full absolute z-10 flex flex-col items-center justify-between px-10'>
-{/* top div */}
-      <div className="h-20 w-full border-t-5 mt-2 border-white flex items-center justify-between">
-      {/* logo */}
-      <div className="bg-white h-20 w-20 absolute top-0 rounded-3xl flex items-center justify-center">
-        <span className="h-5 w-[100%] bg-white absolute top-0"></span>
-        <img className="h-6 w-15" src="./src/Images/Logo.png" alt="Logo"/>
-      </div>
+    <>
+      {/* ==================================================
+          BOTTOM NAVIGATION
+      ================================================== */}
 
-      {/* links */}
-      <div>
-        <ul className="flex gap-15 text-xl ml-50 font-semibold text-white">
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <a href="/explore">Explore</a>
-          </li>
-          <li>
-            <a href="/help">Help!</a>
-          </li>
-        </ul>
-      </div>
-       {/* login button */}
-    {user ? (
-  <div className="absolute top-10 right-10 flex items-center gap-3">
+      <nav
+        className="
+          fixed
+          bottom-4
+          left-1/2
+          -translate-x-1/2
+          z-[9999]
 
-    <Link to="/profile">
+          w-[calc(100%-24px)]
+          sm:w-auto
 
-    <span className="text-white font-semibold">
-      Hi, {user.name}
-    </span>
-    </Link>
+          bg-white/90
+          backdrop-blur-xl
 
-  </div>
-) : (
-  <Link to="/login">
-    <button className='flex items-center gap-2 absolute top-10 right-10 bg-white text-[#ff6e4a] font-bold px-4 py-3 rounded-full'>
-      Login <IoMdLogIn className="text-2xl" />
-    </button>
-  </Link>
-)}
-      </div>
+          border
+          border-white
 
-      
+          shadow-[0_10px_40px_rgba(0,0,0,0.12)]
 
-{/* bottom div */}
-      <div className="h-20 w-1/2 mt-20 absolute left-1/14 top-25 flex items-center justify-between">
+          rounded-full
 
-        {/* search bar */}
+          px-2
+          py-2
+          sm:px-3
+          sm:py-3
+        "
+      >
 
-      <div onClick={()=>dispatch(toggleSearch())} className='h-13 w-2/3 bg-white rounded-3xl p-3 flex items-center'> 
-        <CiSearch className="text-3xl" />
-        <input 
-        onFocus={() => dispatch(toggleSearch())}
-         onChange={(e) => dispatch(setQuery(e.target.value))} className="ml-2 h-full w-full outline-0" type="search" placeholder="Search for Foods..." />
-        {searchToggle ?
-  <div className="absolute top-20 w-100 bg-white shadow-lg rounded-lg p-2 max-h-60 overflow-y-auto">
-  {results?.length > 0 ? (
-  results.map((item) => (
-    <div
-      key={item._id}
-      onClick={() => {
-        navigate(`/foodDetails/${item._id}`, {
-          state: item
-        });
-      }}
-      className="p-2 hover:bg-gray-100 cursor-pointer"
-    >
-      {item.name}
-    </div>
-  ))
-) : (
-  <p className="p-2 text-gray-400">No results</p>
-)}
-  </div> :null
-}
-      </div>
+        <div className="flex items-center gap-1 sm:gap-2">
 
-      {/* buttons Container */}
-      <div className="flex gap-5 items-center ">
+          {/* HOME */}
 
-      {/* like code */}
+          <NavItem
+            to="/"
+            icon={<FiHome />}
+            label="Home"
+          />
 
-      <div>
-        <Link to="/likes">
-        <button className='px-3 py-3 rounded-full flex items-center gap-2 bg-white/60 text-white font-bold'><GoHeart className="text-2xl font-bold" /></button>
-        </Link>
-      </div>
+          {/* LIKES */}
 
-      {/* cart code */}
-      <Link to="/cart">
-      <div className="px-3 py-3 flex items-center gap-2 rounded-full bg-white/60 flex items-center justify-center">
-        <button className='text-white font-bold'><BsBasket3 className="text-2xl"/></button>
-          <span className="absolute top-9 ml-5 h-5 w-5 flex items-center justify-center text-black rounded-full bg-white/80 font-bold">
-          {cartCount}
-      </span>      
-      </div> 
-      </Link>
-  
+          <NavItem
+            to="/likes"
+            icon={<GoHeart />}
+            label="Likes"
+          />
 
-      {/* orders  */}
+          {/* CART */}
 
-      <div>
-       <Link to="/orders">
-        <button className='flex items-center gap-2 bg-white/60 text-white font-bold px-3 py-3 rounded-full'><PiClipboardText className="text-2xl" /></button>
-      </Link>
-      </div>
-      </div>
-      </div>
+          <NavItem
+            to="/cart"
+            icon={<BsBasket3 />}
+            label="Cart"
+            badge={cartCount}
+          />
 
-      
-    </div>
+          {/* ORDERS */}
 
+          <NavItem
+            to="/orders"
+            icon={<PiClipboardText />}
+            label="Orders"
+          />
 
-            
+          {/* PROFILE */}
+
+          {user && (
+            <NavItem
+              to="/profile"
+              icon={<FiUser />}
+              label="Profile"
+            />
+          )}
+
+        </div>
+
+      </nav>
+
+      {/* Bottom spacing */}
+
+      <div className="h-20 sm:h-24" />
     </>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

@@ -1,4 +1,3 @@
-import Footer from "./Footer";
 import MiniNav from "../Components/NavComp/MiniNav";
 
 const Contact = () => {
@@ -67,8 +66,6 @@ const Contact = () => {
         </div>
 
       </div>
-
-      <Footer />
     </div>
   );
 };

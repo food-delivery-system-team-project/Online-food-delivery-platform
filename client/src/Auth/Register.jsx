@@ -74,9 +74,12 @@ const Register = () => {
       setOtpSent(true);
 
     } catch (error) {
-      console.log(error);
-      alert("Failed to send OTP ❌");
-    }
+  console.log("STATUS:", error.response?.status);
+  console.log("DATA:", error.response?.data);
+  console.log("ERROR:", error.message);
+
+  alert(error.response?.data?.message || "Failed to send OTP");
+}
   };
 
   // 🔥 STEP 2 → VERIFY OTP
