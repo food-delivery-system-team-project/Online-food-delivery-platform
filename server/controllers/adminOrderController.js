@@ -1,5 +1,5 @@
 const Order = require("../models/Order");
-const Food = require("../models/Food");
+const Food = require("../models/food");
 
 //get all order
 const getAllOrders = async (req, res) => {
