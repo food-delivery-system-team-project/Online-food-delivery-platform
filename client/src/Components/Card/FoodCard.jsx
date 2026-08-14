@@ -1,84 +1,242 @@
-import React, { use } from 'react'
+import React from "react";
 import { FaRegClock } from "react-icons/fa6";
-import { GoHeart } from "react-icons/go";
-import { useSelector ,useDispatch } from 'react-redux';
-import { toggleLike } from '../../Features/likeSlice';
-import { GoHeartFill } from "react-icons/go";
+import { GoHeart, GoHeartFill } from "react-icons/go";
 import { FaStore } from "react-icons/fa";
 import { FaStar } from "react-icons/fa6";
-import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from "react-redux";
+import { toggleLike } from "../../Features/likeSlice";
+import { useNavigate } from "react-router-dom";
 
-const FoodCard = ({food}) => {
-  
+const FoodCard = ({ food }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const LikedItems = useSelector((state) => state.Like.likedItems);
-  const isLiked = LikedItems.includes(food._id);
+
+  const likedItems = useSelector(
+    (state) => state.Like?.likedItems || []
+  );
+
+  const isLiked = likedItems.includes(food._id);
 
   const handleLike = (e) => {
     e.stopPropagation();
     dispatch(toggleLike(food._id));
   };
+
+  const handleCardClick = () => {
+    navigate(`/foodDetails/${food._id}`);
+  };
+
   return (
-    <div onClick={()=>{
-      navigate(`/foodDetails/${food._id}`);
-    }} className='cursor-pointer'>
-        <div className='h-60 w-70 bg-white flex flex-col relative items-center rounded-3xl'>
+    <div
+      onClick={handleCardClick}
+      className="
+        w-full
+        max-w-[340px]
+        min-w-0
+        cursor-pointer
+        group
+      "
+    >
+      {/* CARD */}
+      <div
+        className="
+          relative
+          w-full
+          overflow-hidden
+          rounded-[24px]
+          bg-white
+          shadow-sm
+          border border-gray-100
+          transition-all
+          duration-300
+          hover:-translate-y-1
+          hover:shadow-xl
+        "
+      >
+        {/* ================= IMAGE ================= */}
+        <div
+          className="
+            relative
+            w-full
+            aspect-[4/3]
+            overflow-hidden
+            bg-gray-100
+          "
+        >
+          <img
+            src={food?.image || "/Images/Logo.png"}
+            alt={food?.name || "Food"}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "/Images/Logo.png";
+            }}
+            className="
+              h-full
+              w-full
+              object-cover
+              transition-transform
+              duration-500
+              group-hover:scale-105
+            "
+          />
 
-          {/* top section */}
-          <div className='h-1/2 w-full flex justify-center items-center overflow-hidden rounded-t-2xl' >
-              <img className="h-full w-full object-cover"  src={food.image}  onError={(e) => {e.target.src = "./src/Images/Logo.png"; }}/>
-          </div>
-            
+          {/* IMAGE OVERLAY */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
 
-          {/* time section */}
-            <div className='flex flex-col items-center justify-center gap-3 absolute left-1 top-21'>
-              <div className='bg-white px-2 py-1 rounded-3xl flex items-center bottom-0 left-0 justify-center gap-1'>
-                <FaRegClock />
-                <h1 className='text-sm font-semibold'>{food.prepTime}</h1>
+          {/* ================= PREP TIME ================= */}
+          {food?.prepTime && (
+            <div className="absolute left-3 bottom-3">
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-1.5
+                  rounded-full
+                  bg-white/95
+                  backdrop-blur-sm
+                  px-3
+                  py-1.5
+                  shadow-sm
+                "
+              >
+                <FaRegClock className="text-[#ff6e4a] text-sm" />
+
+                <span className="text-xs sm:text-sm font-semibold text-[#28282B] whitespace-nowrap">
+                  {food.prepTime}
+                </span>
               </div>
             </div>
+          )}
 
-            {/* save section */}
-            <div className='absolute right-2 top-2'>
-              <button onClick={handleLike} className='bg-[#ffe5de]/80 text-white p-2 rounded-full flex items-center justify-center gap-1'>
-              {isLiked ? <GoHeartFill className='text-[#ff6e47] text-2xl' /> : <GoHeart className='text-2xl text-[#ff6e47]' />}
-              </button>
-            </div>
-
-            {/* bottom section */}
-          <div className='h-1/3 w-full p-2'>
-            <h1 className='text-xl font-bold text-[#28282B]'>{food.name}</h1>
-            {/* store name and rating */}
-            <div className='text-sm font-semibold text-[#28282B] flex items-center justify-between gap-2'>
-              <span className='flex gap-2 items-center'>
-            <FaStore  className='text-[#ff6e47]' />
-                <h1>
-                   {food.storeName}
-                </h1>
-              </span>
-              <span className='flex gap-0.5 items-center'>
-                <h1>{food.rating}</h1>
-                <FaStar className='text-amber-400'/>
-                <h1>({food.totalRatings}+)</h1>
-              </span>
-            </div>
-
-            {/* delivery fee and price */}
-             
-            <div className='text-sm font-semibold text-[#28282B] flex items-center mt-3 justify-between gap-2'>
-                <h1 className='text-[#ff6e47]'>
-                   ₹0 Delivery fee over ₹299
-                </h1>
-              <span className='flex items-center px-6 py-1 bg-[#28282B] text-white rounded-3xl '>
-                <h1>₹{food.price}</h1>
-              </span>
-            </div>
-            </div> 
-
+          {/* ================= LIKE ================= */}
+          <button
+            type="button"
+            onClick={handleLike}
+            aria-label={isLiked ? "Remove from favorites" : "Add to favorites"}
+            className="
+              absolute
+              right-3
+              top-3
+              h-10
+              w-10
+              flex
+              items-center
+              justify-center
+              rounded-full
+              bg-white/95
+              backdrop-blur-sm
+              shadow-sm
+              transition-all
+              duration-200
+              hover:scale-110
+              active:scale-95
+            "
+          >
+            {isLiked ? (
+              <GoHeartFill className="text-xl text-[#ff6e4a]" />
+            ) : (
+              <GoHeart className="text-xl text-[#ff6e4a]" />
+            )}
+          </button>
         </div>
-    </div>
-  )
-}
 
-export default FoodCard
+        {/* ================= DETAILS ================= */}
+        <div className="p-4">
+          {/* FOOD NAME */}
+          <h2
+            className="
+              text-base
+              sm:text-lg
+              font-bold
+              text-[#28282B]
+              truncate
+            "
+            title={food?.name}
+          >
+            {food?.name || "Food Item"}
+          </h2>
+
+          {/* STORE + RATING */}
+          <div className="mt-2 flex items-center justify-between gap-2">
+            {/* STORE */}
+            <div className="flex min-w-0 items-center gap-1.5">
+              <FaStore className="shrink-0 text-[#ff6e4a] text-sm" />
+
+              <span
+                className="
+                  truncate
+                  text-xs
+                  sm:text-sm
+                  font-medium
+                  text-gray-600
+                "
+                title={food?.storeName}
+              >
+                {food?.storeName || "Restaurant"}
+              </span>
+            </div>
+
+            {/* RATING */}
+            <div
+              className="
+                flex
+                shrink-0
+                items-center
+                gap-1
+                rounded-full
+                bg-amber-50
+                px-2
+                py-1
+              "
+            >
+              <FaStar className="text-amber-400 text-xs" />
+
+              <span className="text-xs font-semibold text-[#28282B]">
+                {food?.rating ?? "0"}
+              </span>
+
+              {food?.totalRatings > 0 && (
+                <span className="text-[10px] text-gray-400">
+                  ({food.totalRatings})
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* ================= BOTTOM ================= */}
+          <div className="mt-4 flex items-center justify-between gap-3">
+            {/* DELIVERY */}
+            <div className="min-w-0">
+              <p className="truncate text-[11px] sm:text-xs font-medium text-[#ff6e4a]">
+                Free delivery
+              </p>
+
+              <p className="text-[10px] sm:text-xs text-gray-400">
+                On orders over ₹299
+              </p>
+            </div>
+
+            {/* PRICE */}
+            <div
+              className="
+                shrink-0
+                rounded-full
+                bg-[#28282B]
+                px-4
+                py-2
+                text-white
+                font-bold
+                text-sm
+                sm:text-base
+              "
+            >
+              ₹{food?.price ?? 0}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FoodCard;

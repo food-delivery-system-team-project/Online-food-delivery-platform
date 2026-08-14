@@ -1,4 +1,4 @@
-const Food = require("../models/Food");
+const Food = require("../models/food");
 const cloudinary = require("../config/cloudinary");
 
 //Get all food
