@@ -49,9 +49,14 @@ export default function Sidebar({ open, onClose }) {
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
               <ChefHat size={19} />
             </div>
-            <span className="font-display font-bold text-ink-900 dark:text-slate-100">FoodHub</span>
+            <span className="font-display font-bold text-ink-900 dark:text-slate-100">
+              FoodHub
+            </span>
           </div>
-          <button onClick={onClose} className="text-ink-500 hover:text-ink-800 dark:text-slate-400 dark:hover:text-slate-200 lg:hidden">
+          <button
+            onClick={onClose}
+            className="text-ink-500 hover:text-ink-800 dark:text-slate-400 dark:hover:text-slate-200 lg:hidden"
+          >
             <X size={20} />
           </button>
         </div>

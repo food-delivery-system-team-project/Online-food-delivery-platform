@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { Loader2, CheckCircle2, ShieldCheck, BellRing, MoonStar, SunMedium } from "lucide-react";
+import {
+  Loader2,
+  CheckCircle2,
+  ShieldCheck,
+  BellRing,
+  MoonStar,
+  SunMedium,
+} from "lucide-react";
 import { updateSettings } from "../api";
 import { useTheme } from "../context/ThemeContext";
 
@@ -10,7 +17,11 @@ export default function Settings() {
     customerNotif: true,
     marketingEmails: false,
   });
-  const [passwords, setPasswords] = useState({ current: "", next: "", confirm: "" });
+  const [passwords, setPasswords] = useState({
+    current: "",
+    next: "",
+    confirm: "",
+  });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -30,40 +41,74 @@ export default function Settings() {
     <div className="max-w-2xl animate-fadeIn space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-ink-500 text-sm mt-1">Notification aur account settings manage karo.</p>
+        <p className="text-ink-500 text-sm mt-1">
+          Notification aur account settings manage karo.
+        </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
         <div className="card space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-ink-900 dark:text-slate-100">Appearance</h3>
-              <p className="text-sm text-ink-500 dark:text-slate-400">Switch between light and dark mode whenever you prefer.</p>
+              <h3 className="font-semibold text-ink-900 dark:text-slate-100">
+                Appearance
+              </h3>
+              <p className="text-sm text-ink-500 dark:text-slate-400">
+                Switch between light and dark mode whenever you prefer.
+              </p>
             </div>
-            <button type="button" onClick={toggleTheme} className="btn-secondary">
-              {theme === "dark" ? <SunMedium size={16} /> : <MoonStar size={16} />}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="btn-secondary"
+            >
+              {theme === "dark" ? (
+                <SunMedium size={16} />
+              ) : (
+                <MoonStar size={16} />
+              )}
               {theme === "dark" ? "Light" : "Dark"}
             </button>
           </div>
         </div>
 
         <div className="card space-y-4">
-          <h3 className="font-semibold text-ink-900 dark:text-slate-100">Notifications</h3>
+          <h3 className="font-semibold text-ink-900 dark:text-slate-100">
+            Notifications
+          </h3>
           {[
-            { key: "orderNotif", label: "New order notifications", desc: "Har naye order par alert milega." },
-            { key: "customerNotif", label: "Customer sign-up alerts", desc: "Naye customer register hone par." },
-            { key: "marketingEmails", label: "Marketing emails", desc: "Promotions aur updates ke email." },
+            {
+              key: "orderNotif",
+              label: "New order notifications",
+              desc: "Har naye order par alert milega.",
+            },
+            {
+              key: "customerNotif",
+              label: "Customer sign-up alerts",
+              desc: "Naye customer register hone par.",
+            },
+            {
+              key: "marketingEmails",
+              label: "Marketing emails",
+              desc: "Promotions aur updates ke email.",
+            },
           ].map(({ key, label, desc }) => (
             <div key={key} className="flex items-center justify-between py-2">
               <div>
-                <p className="text-sm font-medium text-ink-800 dark:text-slate-200">{label}</p>
-                <p className="text-xs text-ink-500 dark:text-slate-400">{desc}</p>
+                <p className="text-sm font-medium text-ink-800 dark:text-slate-200">
+                  {label}
+                </p>
+                <p className="text-xs text-ink-500 dark:text-slate-400">
+                  {desc}
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => togglePref(key)}
                 className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border border-transparent p-1 transition-all duration-200 ${
-                  prefs[key] ? "bg-primary shadow-[0_0_0_4px_rgba(255,110,74,0.14)]" : "bg-ink-200 dark:bg-slate-700"
+                  prefs[key]
+                    ? "bg-primary shadow-[0_0_0_4px_rgba(255,110,74,0.14)]"
+                    : "bg-ink-200 dark:bg-slate-700"
                 }`}
               >
                 <span
@@ -79,14 +124,18 @@ export default function Settings() {
         <div className="card space-y-4">
           <div className="flex items-center gap-2 text-primary">
             <ShieldCheck size={16} />
-            <h3 className="font-semibold text-ink-900 dark:text-slate-100">Change Password</h3>
+            <h3 className="font-semibold text-ink-900 dark:text-slate-100">
+              Change Password
+            </h3>
           </div>
           <div>
             <label className="label">Current Password</label>
             <input
               type="password"
               value={passwords.current}
-              onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
+              onChange={(e) =>
+                setPasswords({ ...passwords, current: e.target.value })
+              }
               className="input"
             />
           </div>
@@ -96,7 +145,9 @@ export default function Settings() {
               <input
                 type="password"
                 value={passwords.next}
-                onChange={(e) => setPasswords({ ...passwords, next: e.target.value })}
+                onChange={(e) =>
+                  setPasswords({ ...passwords, next: e.target.value })
+                }
                 className="input"
               />
             </div>
@@ -105,7 +156,9 @@ export default function Settings() {
               <input
                 type="password"
                 value={passwords.confirm}
-                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+                onChange={(e) =>
+                  setPasswords({ ...passwords, confirm: e.target.value })
+                }
                 className="input"
               />
             </div>

@@ -25,15 +25,18 @@ export default function Orders() {
   }, []);
 
   const filtered = useMemo(
-    () => (filter === "All" ? orders : orders.filter((o) => o.status === filter)),
-    [orders, filter]
+    () =>
+      filter === "All" ? orders : orders.filter((o) => o.status === filter),
+    [orders, filter],
   );
 
   return (
     <div className="animate-fadeIn space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Orders</h1>
-        <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">Saare orders yaha track karo.</p>
+        <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">
+          Saare orders yaha track karo.
+        </p>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
@@ -74,13 +77,26 @@ export default function Orders() {
                   </tr>
                 ))
               : filtered.map((o) => (
-                  <tr key={o.id} className="table-row-hover border-b border-ink-100/60 last:border-0">
-                    <td className="py-3 px-5 font-medium text-ink-800 dark:text-slate-100">{o.id}</td>
-                    <td className="py-3 px-5 text-ink-700 dark:text-slate-200">{o.customer}</td>
-                    <td className="py-3 px-5 text-ink-600 dark:text-slate-300">{o.date}</td>
-                    <td className="py-3 px-5 text-ink-700 dark:text-slate-200">₹{o.amount}</td>
+                  <tr
+                    key={o.id}
+                    className="table-row-hover border-b border-ink-100/60 last:border-0"
+                  >
+                    <td className="py-3 px-5 font-medium text-ink-800 dark:text-slate-100">
+                      {o.id}
+                    </td>
+                    <td className="py-3 px-5 text-ink-700 dark:text-slate-200">
+                      {o.customer}
+                    </td>
+                    <td className="py-3 px-5 text-ink-600 dark:text-slate-300">
+                      {o.date}
+                    </td>
+                    <td className="py-3 px-5 text-ink-700 dark:text-slate-200">
+                      ₹{o.amount}
+                    </td>
                     <td className="py-3 px-5">
-                      <span className={`badge ${statusStyles[o.status]}`}>{o.status}</span>
+                      <span className={`badge ${statusStyles[o.status]}`}>
+                        {o.status}
+                      </span>
                     </td>
                     <td className="py-3 px-5 text-right">
                       <Link
@@ -96,7 +112,9 @@ export default function Orders() {
         </table>
 
         {!loading && filtered.length === 0 && (
-          <div className="py-16 text-center text-ink-600 dark:text-slate-300">No orders in this category.</div>
+          <div className="py-16 text-center text-ink-600 dark:text-slate-300">
+            No orders in this category.
+          </div>
         )}
       </div>
     </div>

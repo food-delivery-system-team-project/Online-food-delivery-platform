@@ -20,3 +20,11 @@ export const deleteFood = async (foodId) => {
     return response.data;
 }
 
+export const updateFood = async (foodId, foodData) => {
+    const response = await api.put(`/foods/${foodId}`, foodData, {
+        headers: {
+            contentType: "multipart/form-data"
+        }
+    });
+    return response.data;
+};

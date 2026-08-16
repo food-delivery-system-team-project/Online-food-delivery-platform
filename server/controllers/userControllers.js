@@ -5,7 +5,9 @@ const generateToken = require("../utils/generateToken");
 
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user.id).select(
+      "-password -refreshToken",
+    );
 
     res.json({ success: true, user });
   } catch (error) {

@@ -1,230 +1,268 @@
 import { useEffect, useState } from "react";
-import { BellRing, Camera, CheckCircle2, Clock3, Loader2, MapPin, ShieldCheck, Sparkles } from "lucide-react";
-import { getAdminProfile, updateAdminProfile } from "../api";
-import { useTheme } from "../context/ThemeContext";
-
-const defaultProfile = {
-  name: "Ananya Mehta",
-  email: "admin@foodhub.com",
-  phone: "9090909090",
-  role: "Super Admin",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ananya",
-  bio: "Runs daily operations, monitors growth, and keeps the kitchen team aligned.",
-  location: "Indore, India",
-  timezone: "Asia/Kolkata",
-  joined: "12 Jan 2025",
-  lastLogin: "Today • 09:45 AM",
-  preferences: {
-    liveUpdates: true,
-    orderAlerts: true,
-    weeklyReports: false,
-  },
-};
+import { Loader2, Save, UserCircle } from "lucide-react";
+import api from "../api/axios";
 
 export default function Profile() {
-  const { theme, toggleTheme } = useTheme();
-  const [profile, setProfile] = useState(defaultProfile);
+  const [user, setUser] = useState(null);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
+  // Get logged-in user
   useEffect(() => {
-    getAdminProfile().then((data) => {
-      setProfile({
-        ...defaultProfile,
-        ...data,
-        preferences: { ...defaultProfile.preferences, ...(data.preferences || {}) },
-      });
-      setLoading(false);
-    });
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await api.get("users/profile");
+
+        const userData = response.data?.user;
+
+        if (!userData) {
+          throw new Error("User data not found");
+        }
+
+        setUser(userData);
+
+        setForm({
+          name: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+        });
+      } catch (error) {
+        console.error("Profile error:", error);
+
+        setError(
+          error.response?.data?.message ||
+            error.message ||
+            "Failed to load profile"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
   }, []);
 
-  const handleChange = (event) => setProfile({ ...profile, [event.target.name]: event.target.value });
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
-  const handleToggle = (key) =>
-    setProfile((current) => ({
+    setForm((current) => ({
       ...current,
-      preferences: { ...current.preferences, [key]: !current.preferences[key] },
+      [name]: value,
     }));
 
-  const handleAvatarChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setProfile((current) => ({ ...current, avatar: String(reader.result) }));
-    reader.readAsDataURL(file);
+    setSuccess("");
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setSaving(true);
-    setSaved(false);
-    await updateAdminProfile({ ...profile, preferences: profile.preferences });
-    setSaving(false);
-    setSaved(true);
+
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
+
+      const response = await api.put("users/profile", form);
+
+      const updatedUser = response.data?.user;
+
+      if (updatedUser) {
+        setUser(updatedUser);
+
+        setForm({
+          name: updatedUser.name || "",
+          email: updatedUser.email || "",
+          phone: updatedUser.phone || "",
+        });
+      }
+
+      setSuccess("Profile updated successfully.");
+    } catch (error) {
+      console.error("Update profile error:", error);
+
+      setError(
+        error.response?.data?.message ||
+          "Failed to update profile"
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
-    return <div className="card h-64 max-w-5xl animate-pulse bg-ink-100/60 dark:bg-slate-800" />;
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <Loader2 className="animate-spin text-primary" size={28} />
+      </div>
+    );
+  }
+
+  if (error && !user) {
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+        {error}
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-5xl animate-fadeIn space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">Admin workspace</p>
-          <h1 className="page-heading mt-1">Profile & controls</h1>
-          <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">Manage your identity, preferences, and daily admin access in one place.</p>
-        </div>
-        <button type="button" onClick={toggleTheme} className="btn-secondary w-fit">
-          {theme === "dark" ? <Sparkles size={16} /> : <Sparkles size={16} />}
-          {theme === "dark" ? "Switch to light" : "Switch to dark"}
-        </button>
+    <div className="max-w-4xl space-y-6">
+      {/* Header */}
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
+          Account
+        </p>
+
+        <h1 className="page-heading mt-1">
+          My Profile
+        </h1>
+
+        <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">
+          View and update your account information.
+        </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <form onSubmit={handleSubmit} className="card space-y-6">
-          <div className="flex flex-col gap-5 rounded-2xl border border-ink-100/80 bg-ink-50/70 p-4 dark:border-slate-800 dark:bg-slate-800/70 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <img src={profile.avatar} alt="avatar" className="h-20 w-20 rounded-2xl object-cover ring-2 ring-primary/20" />
-                <label className="absolute -bottom-2 -right-2 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-primary text-white shadow-soft transition hover:bg-primary-600">
-                  <Camera size={14} />
-                  <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                </label>
-              </div>
-              <div>
-                <p className="font-semibold text-ink-900 dark:text-slate-100">{profile.name}</p>
-                <p className="text-sm text-ink-500 dark:text-slate-400">{profile.role}</p>
-                <p className="mt-1 text-xs text-primary">{profile.location}</p>
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white px-3 py-2 text-sm shadow-sm dark:bg-slate-900">
-              <p className="font-semibold text-ink-900 dark:text-slate-100">Last login</p>
-              <p className="text-ink-500 dark:text-slate-400">{profile.lastLogin}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <div>
-              <label className="label">Full Name</label>
-              <input name="name" value={profile.name} onChange={handleChange} className="input" />
-            </div>
-            <div>
-              <label className="label">Email</label>
-              <input type="email" name="email" value={profile.email} onChange={handleChange} className="input" />
-            </div>
-            <div>
-              <label className="label">Phone</label>
-              <input name="phone" value={profile.phone} onChange={handleChange} className="input" />
-            </div>
-            <div>
-              <label className="label">Role</label>
-              <input name="role" value={profile.role} disabled className="input cursor-not-allowed opacity-60" />
-            </div>
-            <div>
-              <label className="label">Location</label>
-              <input name="location" value={profile.location} onChange={handleChange} className="input" />
-            </div>
-            <div>
-              <label className="label">Timezone</label>
-              <input name="timezone" value={profile.timezone} onChange={handleChange} className="input" />
-            </div>
+      {/* Profile card */}
+      <div className="card">
+        <div className="flex items-center gap-4 border-b border-ink-100 pb-6 dark:border-slate-800">
+          <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary">
+            <UserCircle size={38} />
           </div>
 
           <div>
-            <label className="label">Short bio</label>
-            <textarea name="bio" rows="3" value={profile.bio} onChange={handleChange} className="input resize-none" />
-          </div>
+            <h2 className="text-xl font-bold text-ink-900 dark:text-white">
+              {user?.name || "User"}
+            </h2>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              { label: "Joined", value: profile.joined, icon: Clock3 },
-              { label: "Location", value: profile.location, icon: MapPin },
-              { label: "Security", value: "Protected", icon: ShieldCheck },
-            ].map(({ label, value, icon: Icon }) => (
-              <div key={label} className="rounded-2xl border border-ink-100 bg-ink-50 px-3 py-3 dark:border-slate-800 dark:bg-slate-800/70">
-                <div className="flex items-center gap-2 text-sm font-semibold text-ink-700 dark:text-slate-200">
-                  <Icon size={15} className="text-primary" /> {label}
-                </div>
-                <p className="mt-1 text-sm text-ink-500 dark:text-slate-400">{value}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold text-ink-900 dark:text-slate-100">Preferences</p>
-                <p className="text-sm text-ink-500 dark:text-slate-400">Choose how your admin series should stay updated.</p>
-              </div>
-            </div>
-            {[
-              { key: "liveUpdates", label: "Live order updates", desc: "Real-time status updates for current operations" },
-              { key: "orderAlerts", label: "Order alerts", desc: "Instant alerts for important order activity" },
-              { key: "weeklyReports", label: "Weekly reports", desc: "Weekly summaries in your inbox" },
-            ].map(({ key, label, desc }) => (
-              <div key={key} className="flex items-center justify-between rounded-2xl border border-ink-100 px-3 py-3 dark:border-slate-800">
-                <div>
-                  <p className="text-sm font-semibold text-ink-800 dark:text-slate-200">{label}</p>
-                  <p className="text-xs text-ink-500 dark:text-slate-400">{desc}</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleToggle(key)}
-                  className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition-all duration-200 ${profile.preferences[key] ? "bg-primary shadow-[0_0_0_4px_rgba(255,110,74,0.14)]" : "bg-ink-200 dark:bg-slate-700"}`}
-                >
-                  <span className={`h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ${profile.preferences[key] ? "translate-x-5" : "translate-x-0"}`} />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {saved && (
-            <p className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-              <CheckCircle2 size={16} /> Profile updated successfully.
+            <p className="text-sm text-ink-500 dark:text-slate-400">
+              {user?.email}
             </p>
+
+            {user?.role && (
+              <span className="mt-2 inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                {user.role}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="mt-6 space-y-5"
+        >
+          <div className="grid gap-5 sm:grid-cols-2">
+            {/* Name */}
+            <div>
+              <label className="label">
+                Full Name
+              </label>
+
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="label">
+                Email
+              </label>
+
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="label">
+                Phone
+              </label>
+
+              <input
+                type="text"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your phone number"
+              />
+            </div>
+
+            {/* Role */}
+            <div>
+              <label className="label">
+                Role
+              </label>
+
+              <input
+                type="text"
+                value={user?.role || ""}
+                disabled
+                className="input cursor-not-allowed opacity-60"
+              />
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
           )}
 
-          <div className="flex flex-wrap gap-3">
-            <button type="submit" disabled={saving} className="btn-primary px-6">
-              {saving && <Loader2 size={17} className="animate-spin" />}
-              {saving ? "Saving..." : "Save profile"}
-            </button>
-            <button type="button" onClick={() => setSaved(false)} className="btn-secondary">
-              Clear notice
-            </button>
-          </div>
+          {/* Success */}
+          {success && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              {success}
+            </div>
+          )}
+
+          {/* Save */}
+          <button
+            type="submit"
+            disabled={saving}
+            className="btn-primary"
+          >
+            {saving ? (
+              <>
+                <Loader2
+                  size={17}
+                  className="animate-spin"
+                />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={17} />
+                Save Changes
+              </>
+            )}
+          </button>
         </form>
-
-        <aside className="space-y-6">
-          <div className="card">
-            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <ShieldCheck size={16} /> Security overview
-            </div>
-            <ul className="mt-4 space-y-3 text-sm text-ink-600 dark:text-slate-300">
-              <li className="rounded-xl bg-ink-50 px-3 py-2 dark:bg-slate-800">Two-step verification is enabled.</li>
-              <li className="rounded-xl bg-ink-50 px-3 py-2 dark:bg-slate-800">Login alerts are active for high-risk sign-ins.</li>
-              <li className="rounded-xl bg-ink-50 px-3 py-2 dark:bg-slate-800">Session timeout is set to 30 minutes.</li>
-            </ul>
-          </div>
-
-          <div className="card">
-            <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <BellRing size={16} /> Daily focus
-            </div>
-            <div className="mt-4 space-y-3">
-              <div className="rounded-2xl border border-ink-100 p-3 dark:border-slate-800">
-                <p className="text-sm font-semibold text-ink-900 dark:text-slate-100">3 urgent orders</p>
-                <p className="text-xs text-ink-500 dark:text-slate-400">Need kitchen follow-up in 20 minutes.</p>
-              </div>
-              <div className="rounded-2xl border border-ink-100 p-3 dark:border-slate-800">
-                <p className="text-sm font-semibold text-ink-900 dark:text-slate-100">1 stock review</p>
-                <p className="text-xs text-ink-500 dark:text-slate-400">Chicken Biryani is below threshold.</p>
-              </div>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );
