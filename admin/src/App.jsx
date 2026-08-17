@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import Admin_login from "./components/Login/Admin_login";
 import DashboardLayout from "./components/DashboardLayout";
@@ -11,14 +13,52 @@ import Customers from "./Pages/Customers";
 import Profile from "./Pages/Profile";
 import Settings from "./Pages/Settings";
 import History from "./Pages/History";
-import { isAuthenticated } from "./api";
+import { isAuthenticated } from "./api/index";
 
 function ProtectedRoute() {
-  return isAuthenticated() ? <Outlet /> : <Navigate to="/" replace />;
+  const [authenticated, setAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const result = await isAuthenticated();
+      setAuthenticated(result);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (authenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (!authenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 }
 
 function LoginRoute() {
-  return isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Admin_login />;
+  const [authenticated, setAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const result = await isAuthenticated();
+      setAuthenticated(result);
+    };
+
+    checkAuth();
+  }, []);
+
+  if (authenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  if (authenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Admin_login />;
 }
 
 function App() {

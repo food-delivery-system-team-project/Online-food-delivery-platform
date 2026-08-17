@@ -5,7 +5,7 @@ const cloudinary = require("../config/cloudinary");
 const getFoods = async (req, res) => {
   try {
    
-    let {limit = 5} = req.query;
+    let {limit = 12} = req.query;
     const { search, category, page = 1, sort } = req.query;
 
     let query = {};
@@ -82,6 +82,56 @@ const addFood = async (req, res) => {
   }
 };
 
+const updateFood = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      name,
+      price,
+      category,
+      storeName,
+      prepTime,
+    } = req.body;
+
+    const food = await Food.findById(req.params.id);
+
+    if (!food) {
+      return res.status(404).json({
+        message: "Food not found",
+      });
+    }
+
+    food.name = name;
+    food.price = price;
+    food.category = category;
+    food.storeName = storeName;
+    food.prepTime = prepTime;
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(
+        req.file.path
+      );
+
+      food.image = result.secure_url;
+    }
+
+    const updatedFood = await food.save();
+
+    res.status(200).json(updatedFood);
+  } catch (error) {
+    console.error("Update food error:", error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  updateFood,
+};
+
 const addRating = async (req,res) => {
 try {
   const {foodId,rating} = req.body;
@@ -121,4 +171,4 @@ try {
 }
 }
 
-module.exports = { getFoods, addFood, addRating };
+module.exports = { getFoods, addFood, addRating , updateFood };

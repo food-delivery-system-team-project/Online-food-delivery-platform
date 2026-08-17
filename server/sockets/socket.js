@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
 export const initSocket = (io) => {
-  // 🔐 socket middleware
+ // socket middleware
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token;
 

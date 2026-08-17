@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, CreditCard, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Phone,
+  CreditCard,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { getOrderById, updateOrderStatus } from "../api";
 
 const statusOptions = ["Preparing", "On the way", "Delivered", "Cancelled"];
@@ -33,12 +40,19 @@ export default function Orderdetails() {
   }
 
   if (!order) {
-    return <div className="card text-center py-16 text-ink-500">Order not found.</div>;
+    return (
+      <div className="card text-center py-16 text-ink-500">
+        Order not found.
+      </div>
+    );
   }
 
   return (
     <div className="animate-fadeIn space-y-6 max-w-4xl">
-      <Link to="/orders" className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-primary">
+      <Link
+        to="/orders"
+        className="inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-primary"
+      >
         <ArrowLeft size={16} /> Back to orders
       </Link>
 
@@ -65,7 +79,9 @@ export default function Orderdetails() {
                     <p className="font-medium text-ink-800">{item.name}</p>
                     <p className="text-xs text-ink-500">Qty: {item.qty}</p>
                   </div>
-                  <p className="font-medium text-ink-700">₹{item.price * item.qty}</p>
+                  <p className="font-medium text-ink-700">
+                    ₹{item.price * item.qty}
+                  </p>
                 </div>
               ))}
             </div>
@@ -88,7 +104,9 @@ export default function Orderdetails() {
                       : "bg-ink-50 text-ink-600 hover:bg-primary-50 hover:text-primary"
                   }`}
                 >
-                  {saving && order.status === s ? <Loader2 size={14} className="animate-spin inline mr-1" /> : null}
+                  {saving && order.status === s ? (
+                    <Loader2 size={14} className="animate-spin inline mr-1" />
+                  ) : null}
                   {s}
                 </button>
               ))}

@@ -213,12 +213,9 @@ const userLogin = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.json({
-      message: "login succesfully",
-      token: {
-        accessToken,
-        refreshToken,
-      },
+    res.status(200).json({
+      success: true,
+      message: "login successfully",
       user,
     });
 
@@ -262,24 +259,19 @@ const logout = async (req, res) => {
     res.clearCookie("accessToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production"
-        ? "none"
-        : "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production"
-        ? "none"
-        : "lax",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     res.json({
       success: true,
       message: "Logged out successfully",
     });
-
   } catch (error) {
     res.status(500).json({
       message: error.message,

@@ -12,6 +12,6 @@ const {
 //admin only
 router.get("/all", protect, isAdmin, getAllOrders);
 router.put("/:id", protect, isAdmin, updateOrderStatus);
-router.delete("/:id", protect, isAdmin, deleteFood);
+router.delete("/:id", deleteFood);
 
 module.exports = router;

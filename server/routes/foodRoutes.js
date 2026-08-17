@@ -5,6 +5,7 @@ const {
   getFoods,
   addFood,
   addRating,
+  updateFood,
 } = require("../controllers/foodControllers");
 const protect = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/adminMiddleware");
@@ -16,5 +17,7 @@ router.get("/", getFoods);
 router.post("/", protect, isAdmin, upload.single("image"), addFood);
 
 router.post("/rating", protect, addRating);
+
+router.put("/:id", protect, isAdmin, upload.single("image"), updateFood);
 
 module.exports = router;

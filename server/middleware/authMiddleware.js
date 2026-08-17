@@ -8,7 +8,10 @@ const protect = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token.split(" ")[1], process.env.ACCESS_TOKEN_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET,
+    );
     req.user = decoded;
     next();
   } catch (error) {
