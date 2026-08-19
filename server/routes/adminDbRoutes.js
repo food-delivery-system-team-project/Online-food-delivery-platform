@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   getDashboard
+  ,getAllUser
 } = require("../controllers/adminDbController");
 const protect = require("../middleware/authMiddleware");
 const isAdmin = require("../middleware/adminMiddleware");

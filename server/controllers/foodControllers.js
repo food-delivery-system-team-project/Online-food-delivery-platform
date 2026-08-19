@@ -1,11 +1,10 @@
 const Food = require("../models/food");
-const cloudinary = require("../config/cloudinary");
 
 //Get all food
 const getFoods = async (req, res) => {
   try {
    
-    let {limit = 12} = req.query;
+    let {limit = 30} = req.query;
     const { search, category, page = 1, sort } = req.query;
 
     let query = {};
@@ -39,97 +38,6 @@ const getFoods = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
-
-//Add food
-
-const addFood = async (req, res) => {
-  try {
-    const {
-      name,
-      price,
-      category,
-      storeName,
-      ratings,
-      averageRating,
-      prepTime,
-    } = req.body;
-
-    let image = "";
-
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-
-      image = result.secure_url;
-    }
-
-    const food = new Food({
-      name,
-      price,
-      category,
-      image,
-      ratings,
-      averageRating,
-      storeName,
-      prepTime,
-    });
-
-    const savedFood = await food.save();
-
-    res.json(savedFood);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-const updateFood = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const {
-      name,
-      price,
-      category,
-      storeName,
-      prepTime,
-    } = req.body;
-
-    const food = await Food.findById(req.params.id);
-
-    if (!food) {
-      return res.status(404).json({
-        message: "Food not found",
-      });
-    }
-
-    food.name = name;
-    food.price = price;
-    food.category = category;
-    food.storeName = storeName;
-    food.prepTime = prepTime;
-
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(
-        req.file.path
-      );
-
-      food.image = result.secure_url;
-    }
-
-    const updatedFood = await food.save();
-
-    res.status(200).json(updatedFood);
-  } catch (error) {
-    console.error("Update food error:", error);
-
-    res.status(500).json({
-      message: error.message,
-    });
-  }
-};
-
-module.exports = {
-  updateFood,
 };
 
 const addRating = async (req,res) => {
@@ -171,4 +79,4 @@ try {
 }
 }
 
-module.exports = { getFoods, addFood, addRating , updateFood };
+module.exports = { getFoods, addRating };

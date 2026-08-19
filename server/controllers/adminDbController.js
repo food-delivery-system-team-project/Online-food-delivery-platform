@@ -34,4 +34,4 @@ const getDashboard = async (req, res) => {
   }
 };
 
-module.exports = { getDashboard};
+module.exports = { getDashboard };

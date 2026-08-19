@@ -24,7 +24,7 @@ export default function AdminLogin() {
   const handleChange = (event) =>
     setForm({ ...form, [event.target.name]: event.target.value });
   const useDemo = () => {
-    setForm({ email: "admin@foodhub.com", password: "foodhub-demo" });
+    setForm({ email: "", password: "" });
     setError("");
   };
   
