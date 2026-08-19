@@ -132,7 +132,7 @@ export default function AddFood() {
       formData.append("image", inputRef.current.files[0]);
     }
 
-    const response = await api.post("/foods", formData, {
+    const response = await api.post("/admin/addFood", formData, {
       withCredentials: true,
     });
 

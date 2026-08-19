@@ -1,17 +1,26 @@
 const express = require("express");
 const router = express.Router();
 
-const isAdmin = require("../middleware/adminMiddleware");
 const protect = require("../middleware/authMiddleware");
+const isAdmin = require("../middleware/adminMiddleware");
+const upload = require("../middleware/uploadMiddleware");
+
 const {
   getAllOrders,
   updateOrderStatus,
   deleteFood,
-} = require("../controllers/adminOrderController");
+  getAllUser,
+  addFood,
+  updateFood,
+  getOrderById,
+} = require("../controllers/adminController");
 
 //admin only
-router.get("/all", protect, isAdmin, getAllOrders);
-router.put("/:id", protect, isAdmin, updateOrderStatus);
-router.delete("/:id", deleteFood);
+router.get("/all/orders", protect, isAdmin, getAllOrders);
+router.put("/updateOrder/:id", protect, isAdmin, updateOrderStatus);
+router.post("/addFood", protect, isAdmin, upload.single("image"), addFood);
+router.put("/updateFood/:id", protect, isAdmin, upload.single("image"), updateFood);
+router.delete("/deleteFood/:id", protect, isAdmin, deleteFood);
+router.get("/orders/:id", protect, isAdmin, getOrderById);
 
 module.exports = router;
