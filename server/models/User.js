@@ -19,7 +19,26 @@ const userSchema = new mongoose.Schema(
       type: Number,
       unique: true,
     },
+    dateOfBirth: {
+      type: Date,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+    },
     address: {
+      type: String,
+    },
+    city: {
+      type: String,
+    },
+    state: {
+      type: String,
+    },
+    country: {
+      type: String,
+    },
+    pinCode: {
       type: String,
     },
     profilePic: {

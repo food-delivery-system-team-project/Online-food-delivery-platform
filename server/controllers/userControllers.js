@@ -2,6 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const generateToken = require("../utils/generateToken");
+const cloudinary = require("../config/cloudinary");
 
 const getUserProfile = async (req, res) => {
   try {
@@ -17,14 +18,41 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   try {
-    const { phone, address, profilePic } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      dateOfBirth,
+      gender,
+      address,
+      city,
+      state,
+      country,
+      pinCode,
+      profilePic,
+    } = req.body;
+    const updateData = {
+      name,
+      email,
+      phone,
+      dateOfBirth,
+      gender,
+      address,
+      city,
+      state,
+      country,
+      pinCode,
+      profilePic,
+    };
+
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path);
       updateData.profilePic = result.secure_url;
     }
+
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { phone, address, profilePic },
+      updateData,
       { new: true },
     );
     res.json({ success: true, user });
