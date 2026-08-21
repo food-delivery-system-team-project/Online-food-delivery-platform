@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { Loader2, Save, UserCircle } from "lucide-react";
+import {
+  CalendarDays,
+  Globe2,
+  Loader2,
+  MapPin,
+  Save,
+  UserCircle,
+  UserRound,
+} from "lucide-react";
 import api from "../api/axios";
 
 export default function Profile() {
@@ -8,6 +16,13 @@ export default function Profile() {
     name: "",
     email: "",
     phone: "",
+    dateOfBirth: "",
+    gender: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "",
+    pinCode: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -36,6 +51,15 @@ export default function Profile() {
           name: userData.name || "",
           email: userData.email || "",
           phone: userData.phone || "",
+          dateOfBirth: userData.dateOfBirth
+            ? userData.dateOfBirth.slice(0, 10)
+            : "",
+          gender: userData.gender || "",
+          address: userData.address || "",
+          city: userData.city || "",
+          state: userData.state || "",
+          country: userData.country || "",
+          pinCode: userData.pinCode || "",
         });
       } catch (error) {
         console.error("Profile error:", error);
@@ -83,6 +107,15 @@ export default function Profile() {
           name: updatedUser.name || "",
           email: updatedUser.email || "",
           phone: updatedUser.phone || "",
+          dateOfBirth: updatedUser.dateOfBirth
+            ? updatedUser.dateOfBirth.slice(0, 10)
+            : "",
+          gender: updatedUser.gender || "",
+          address: updatedUser.address || "",
+          city: updatedUser.city || "",
+          state: updatedUser.state || "",
+          country: updatedUser.country || "",
+          pinCode: updatedUser.pinCode || "",
         });
       }
 
@@ -116,7 +149,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-4xl space-y-6">
+    <div className="mx-auto w-full max-w-4xl space-y-6">
       {/* Header */}
       <div>
         <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
@@ -212,6 +245,46 @@ export default function Profile() {
               />
             </div>
 
+            {/* Date of birth */}
+            <div>
+              <label className="label">
+                <span className="inline-flex items-center gap-1.5">
+                  <CalendarDays size={14} />
+                  Date of Birth
+                </span>
+              </label>
+
+              <input
+                type="date"
+                name="dateOfBirth"
+                value={form.dateOfBirth}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
+
+            {/* Gender */}
+            <div>
+              <label className="label">
+                <span className="inline-flex items-center gap-1.5">
+                  <UserRound size={14} />
+                  Gender
+                </span>
+              </label>
+
+              <select
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                className="input"
+              >
+                <option value="">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
             {/* Role */}
             <div>
               <label className="label">
@@ -224,6 +297,126 @@ export default function Profile() {
                 disabled
                 className="input cursor-not-allowed opacity-60"
               />
+            </div>
+
+            {/* Address */}
+            <div className="sm:col-span-2">
+              <label className="label">
+                <span className="inline-flex items-center gap-1.5">
+                  <MapPin size={14} />
+                  Street Address
+                </span>
+              </label>
+
+              <textarea
+                name="address"
+                value={form.address}
+                onChange={handleChange}
+                className="input min-h-24 resize-y"
+                placeholder="Enter your address"
+                rows={3}
+              />
+            </div>
+
+            {/* City */}
+            <div>
+              <label className="label">City</label>
+              <input
+                type="text"
+                name="city"
+                value={form.city}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your city"
+              />
+            </div>
+
+            {/* State */}
+            <div>
+              <label className="label">State</label>
+              <input
+                type="text"
+                name="state"
+                value={form.state}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your state"
+              />
+            </div>
+
+            {/* Country */}
+            <div>
+              <label className="label">
+                <span className="inline-flex items-center gap-1.5">
+                  <Globe2 size={14} />
+                  Country
+                </span>
+              </label>
+              <input
+                type="text"
+                name="country"
+                value={form.country}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter your country"
+              />
+            </div>
+
+            {/* PIN code */}
+            <div>
+              <label className="label">PIN Code</label>
+              <input
+                type="text"
+                name="pinCode"
+                value={form.pinCode}
+                onChange={handleChange}
+                className="input"
+                placeholder="Enter PIN code"
+                inputMode="numeric"
+                maxLength={10}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="font-semibold text-ink-800 dark:text-slate-100">
+                Profile completeness
+              </span>
+              <span className="font-bold text-primary">
+                {Math.round(
+                  (["name", "email", "phone", "dateOfBirth", "gender", "address", "city", "state", "country", "pinCode"]
+                    .filter((field) => form[field]?.toString().trim()).length /
+                    10) *
+                    100,
+                )}%
+              </span>
+            </div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-primary/10">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-300"
+                style={{
+                  width: `${Math.round(
+                    (["name", "email", "phone", "dateOfBirth", "gender", "address", "city", "state", "country", "pinCode"]
+                      .filter((field) => form[field]?.toString().trim()).length /
+                      10) *
+                      100,
+                  )}%`,
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 rounded-xl border border-ink-100 bg-ink-50/50 p-4 text-sm dark:border-slate-800 dark:bg-slate-900/40 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-slate-400">Account ID</p>
+              <p className="mt-1 break-all text-ink-800 dark:text-slate-100">{user?._id || "-"}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 dark:text-slate-400">Member since</p>
+              <p className="mt-1 text-ink-800 dark:text-slate-100">
+                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "-"}
+              </p>
             </div>
           </div>
 

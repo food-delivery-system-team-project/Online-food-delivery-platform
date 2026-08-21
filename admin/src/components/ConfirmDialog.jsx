@@ -24,11 +24,11 @@ export default function ConfirmDialog({
           aria-label="Close confirmation"
           onClick={onClose}
           disabled={loading}
-          className="absolute right-4 top-4 rounded-xl p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-800"
+          className="absolute right-4 top-4 rounded-xl p-2 text-ink-500 transition hover:bg-ink-100 hover:text-ink-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
         >
           <X size={18} />
         </button>
-        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-red-50 text-red-500 shadow-inner">
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-red-50 text-red-500 shadow-inner dark:bg-red-950/50 dark:text-red-400">
           <AlertTriangle size={26} />
         </div>
         <p className="mt-5 text-xs font-extrabold uppercase tracking-[.16em] text-red-500">
@@ -36,11 +36,11 @@ export default function ConfirmDialog({
         </p>
         <h2
           id="confirm-dialog-title"
-          className="mt-2 font-display text-2xl font-extrabold tracking-tight text-ink-900"
+          className="mt-2 font-display text-2xl font-extrabold tracking-tight text-ink-900 dark:text-slate-100"
         >
           {title}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-ink-500">{message}</p>
+        <p className="mt-2 text-sm leading-6 text-ink-500 dark:text-slate-400">{message}</p>
         <div className="mt-7 grid gap-3 sm:grid-cols-2">
           <button
             type="button"

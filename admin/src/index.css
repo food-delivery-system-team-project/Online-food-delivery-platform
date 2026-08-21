@@ -167,11 +167,12 @@
 .feed-item { display: flex; gap: .75rem; align-items: flex-start; }
 .feed-item p { display: grid; gap: .12rem; font-size: .82rem; color: #44403c; }
 .feed-item small { color: #78716c; font-size: .72rem; line-height: 1.25rem; }
-.select-enhanced { appearance: none; cursor: pointer; border-color: #e7e5e4; background-color: #faf9f8; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background-color .18s ease; }
-.select-enhanced:hover { border-color: #ff9d80; background-color: #fff; transform: translateY(-1px); }
+  .select-enhanced { appearance: none; cursor: pointer; border-color: var(--border); background-color: var(--surface-muted); color: var(--text-primary); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background-color .18s ease; }
+  .select-enhanced option { background-color: var(--surface); color: var(--text-primary); }
+  .select-enhanced:hover { border-color: #ff9d80; background-color: var(--surface); transform: translateY(-1px); }
 .select-enhanced:focus { border-color: #ff6e4a; box-shadow: 0 0 0 4px rgba(255, 110, 74, .13); }
 .modal-backdrop { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 1.25rem; background: rgba(28, 25, 23, .52); backdrop-filter: blur(7px); animation: overlay-in .18s ease-out both; }
-.confirm-dialog, .editor-dialog { position: relative; width: min(100%, 30rem); max-height: calc(100vh - 2.5rem); overflow: auto; border: 1px solid rgba(255,255,255,.65); border-radius: 1.5rem; background: #fff; padding: 1.5rem; box-shadow: 0 28px 80px -28px rgba(28,25,23,.6); animation: dialog-in .25s cubic-bezier(.2,.75,.3,1) both; }
+  .confirm-dialog, .editor-dialog { position: relative; width: min(100%, 30rem); max-height: calc(100vh - 2.5rem); overflow: auto; border: 1px solid var(--border); border-radius: 1.5rem; background: var(--surface); color: var(--text-primary); padding: 1.5rem; box-shadow: 0 28px 80px -28px rgba(28,25,23,.6); animation: dialog-in .25s cubic-bezier(.2,.75,.3,1) both; }
 .editor-dialog { width: min(100%, 42rem); }
 
 @keyframes float-orb { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(-18px, 22px, 0) scale(1.08); } }
